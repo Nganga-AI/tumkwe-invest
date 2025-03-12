@@ -8,7 +8,7 @@ newspaper3k
 numpy
 
 # API access
-alpha_vantage
+# alpha-vantage
 finnhub-python
 
 # Data processing
@@ -17,5 +17,9 @@ scipy
 
 # Utilities
 tqdm
-logging
 pickle
+
+# Data Analysis
+transformers
+torch
+matplotlib
