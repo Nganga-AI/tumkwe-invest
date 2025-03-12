@@ -1,0 +1,21 @@
+# Data collection
+yfinance
+pandas
+requests
+python-dotenv
+beautifulsoup4
+newspaper3k
+numpy
+
+# API access
+alpha_vantage
+finnhub-python
+
+# Data processing
+nltk
+scipy
+
+# Utilities
+tqdm
+logging
+pickle
