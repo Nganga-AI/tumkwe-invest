@@ -1,100 +1,104 @@
 # Tumkwe Invest
 
-Application de conseils financiers basée sur l'analyse des données d'entreprise.
+An intelligent investment analysis platform that combines technical, fundamental, and sentiment analysis to provide comprehensive stock market insights.
 
-## Configuration initiale
+## Overview
 
-1. Créez un environnement virtuel Python:
+Tumkwe Invest is a Python package designed to help investors make data-driven decisions by collecting, analyzing, and interpreting financial data from various sources. The platform integrates multiple analysis techniques to provide holistic investment recommendations.
 
-   ```
-   python -m venv venv
-   source venv/bin/activate  # Sur Windows: venv\Scripts\activate
-   ```
-2. Installez les dépendances:
+## Features
 
-   ```
-   pip install -r requirements.txt
-   ```
-3. Configurez les clés API:
+- **Data Collection**: Automated collection from multiple financial sources
 
-   ```
-   cp .env.example .env
-   # Modifiez le fichier .env pour ajouter vos clés API
-   ```
+  - Yahoo Finance data
+  - SEC EDGAR filings
+  - Financial metrics
+  - News articles and sentiment data
+- **Analysis Capabilities**:
 
-## Collecte de données
+  - Technical analysis (price patterns, indicators, volume analysis)
+  - Fundamental analysis (financial statements, ratios, valuations)
+  - Sentiment analysis (news, social media, market sentiment)
+  - Integrated scoring system combining multiple analysis methods
 
-La première étape du projet consiste à collecter les données financières, boursières et textuelles nécessaires pour analyser les entreprises.
-
-### Sources de données:
-
-- Yahoo Finance (via yfinance) - données boursières et financières
-- Alpha Vantage API - données financières supplémentaires
-- News API - articles de presse et actualités
-- Yahoo Finance News - actualités (gratuit)
-- SEC EDGAR - documents officiels déposés auprès de la SEC
-
-### Méthodes de collecte:
-
-#### 1. Collecteur unifié (recommandé):
+## Project Structure
 
 ```
-python unified_data_collection.py AAPL MSFT GOOGL
+tumkwe_invest/
+├── data_analysis/          # Analysis modules
+│   ├── fundamental_analysis.py
+│   ├── integrated_analysis.py
+│   ├── sentiment_analysis.py
+│   ├── technical_analysis.py
+│   └── validation.py
+├── datacollection/         # Data collection modules
+│   ├── collector_manager.py
+│   ├── collectors/         # Specific collectors
+│   │   ├── financial_metrics.py
+│   │   ├── news_collector.py
+│   │   ├── sec_edgar.py
+│   │   ├── yahoo_finance.py
+│   │   └── yahoo_news.py
+│   ├── config.py
+│   ├── models.py
+│   └── validation.py
 ```
 
-Options supplémentaires:
+## Installation
 
-- `--file symbols.txt` : Charger les symboles d'actions depuis un fichier
-- `--scheduler` : Exécuter en arrière-plan et actualiser les données automatiquement
-- `--validate` : Valider uniquement les données existantes sans collecter de nouvelles données
+```bash
+# Clone the repository
+git clone https://github.com/yourusername/tumkwe-invest.git
+cd tumkwe-invest
 
-#### 2. Script d'échantillon simplifié:
-
-```
-python sample_collection.py
-```
-
-Ce script collectera des données pour quelques entreprises de démonstration (Apple, Microsoft, Google) et les enregistrera dans le dossier `collected_data/`.
-
-#### 3. Collecte d'actualités Yahoo Finance:
-
-```
-python sample_yahoo_news.py
+# Install the package
+pip install -e .
 ```
 
-### Structure des données collectées:
+## Usage
 
-- `profile.json` - Informations sur l'entreprise
-- `stock_prices.csv` - Historique des prix boursiers
-- `income_statement.json` - États financiers (compte de résultat)
-- `balance_sheet.json` - États financiers (bilan)
-- `cash_flow.json` - États financiers (flux de trésorerie)
-- `quarterly_*.json` - États financiers trimestriels
-- `key_metrics.json` - Indicateurs clés (P/E, ROE, etc.)
-- `news_articles.csv` - Liste d'articles de presse récents
-- `articles/*.txt` - Contenu complet des articles de presse
-- `sec_filings_metadata.csv` - Liste des documents déposés auprès de la SEC
-- `sec_filings/*.txt` - Contenu des documents officiels (10-K, 10-Q)
+```python
+import tumkwe_invest as ti
 
-### Architecture du système de collecte de données
+# Data Collection
+collector = ti.datacollection.collector_manager.CollectorManager()
+data = collector.collect_data("AAPL")
 
-Le système est conçu pour être robuste, flexible et capable de s'adapter à différentes sources de données:
+# Technical Analysis
+tech_analysis = ti.data_analysis.technical_analysis.TechnicalAnalyzer()
+tech_scores = tech_analysis.analyze(data)
 
-1. **Modèles de données**: Classes qui représentent les différentes entités financières (prix d'actions, états financiers, etc.)
-2. **Collecteurs spécialisés**: Modules qui se connectent à différentes APIs et sources de données
-3. **Gestionnaire de collecte**: Coordonne les tâches de collecte et gère les mises à jour automatiques
-4. **Validation des données**: Vérifie la qualité et la cohérence des données collectées
+# Fundamental Analysis
+fund_analysis = ti.data_analysis.fundamental_analysis.FundamentalAnalyzer()
+fund_scores = fund_analysis.analyze(data)
 
-Les données sont automatiquement validées et les problèmes potentiels sont signalés dans les journaux d'exécution.
+# Sentiment Analysis
+sent_analysis = ti.data_analysis.sentiment_analysis.SentimentAnalyzer()
+sent_scores = sent_analysis.analyze(data)
 
-### Contraintes techniques
+# Integrated Analysis
+integrated = ti.data_analysis.integrated_analysis.IntegratedAnalyzer()
+final_score = integrated.get_composite_score(tech_scores, fund_scores, sent_scores)
+recommendation = integrated.get_recommendation(final_score)
 
-- Le système est conçu pour respecter les limites des APIs gratuites
-- Les données sont mises en cache localement pour réduire les appels aux APIs
-- Les mises à jour sont programmées selon différentes fréquences en fonction du type de données
+print(f"Investment recommendation for AAPL: {recommendation}")
+```
 
-## Prochaines étapes
+## Requirements
 
-1. Analyse des données collectées
-2. Modélisation et génération de conseils
-3. Création d'une interface utilisateur
+- Python 3.8+
+- pandas
+- numpy
+- yfinance
+- requests
+- nltk
+- beautifulsoup4
+- scikit-learn
+
+## License
+
+[MIT License](LICENSE)
+
+## Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
