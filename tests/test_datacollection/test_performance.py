@@ -8,9 +8,9 @@ import tempfile
 import shutil
 from datetime import datetime, timedelta
 
-from datacollection.collector_manager import CollectorManager
-from datacollection.collectors.yahoo_finance import get_stock_data
-from datacollection.collectors.yahoo_news import get_yahoo_finance_news
+from tumkwe_invest.datacollection.collector_manager import CollectorManager
+from tumkwe_invest.datacollection.collectors.yahoo_finance import get_stock_data
+from tumkwe_invest.datacollection.collectors.yahoo_news import get_yahoo_finance_news
 
 
 class TestPerformance(unittest.TestCase):

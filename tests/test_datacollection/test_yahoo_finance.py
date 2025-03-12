@@ -7,7 +7,7 @@ from datetime import datetime
 
 import pandas as pd
 
-from datacollection.collectors.yahoo_finance import (
+from tumkwe_invest.datacollection.collectors.yahoo_finance import (
     get_stock_data, get_company_profile, get_financial_statements
 )
 

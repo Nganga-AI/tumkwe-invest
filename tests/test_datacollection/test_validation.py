@@ -5,11 +5,11 @@ import unittest
 from datetime import datetime, timedelta
 import pandas as pd
 
-from datacollection.models import (
+from tumkwe_invest.datacollection.models import (
     StockPrice, FinancialStatement, CompanyProfile,
     NewsArticle, KeyMetrics, ValidationReport
 )
-from datacollection.validation import (
+from tumkwe_invest.datacollection.validation import (
     validate_stock_prices, validate_financial_statement,
     validate_key_metrics, validate_company_profile,
     validate_news_articles, generate_combined_report

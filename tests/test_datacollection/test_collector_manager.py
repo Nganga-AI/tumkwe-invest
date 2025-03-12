@@ -7,8 +7,8 @@ import os
 import pickle
 from datetime import datetime, timedelta
 
-from datacollection.collector_manager import CollectorManager
-from datacollection.models import DataCollectionTask
+from tumkwe_invest.datacollection.collector_manager import CollectorManager
+from tumkwe_invest.datacollection.models import DataCollectionTask
 
 
 class TestCollectorManager(unittest.TestCase):

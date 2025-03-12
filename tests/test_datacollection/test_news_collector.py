@@ -5,7 +5,7 @@ import unittest
 from unittest.mock import patch, MagicMock
 from datetime import datetime
 
-from datacollection.collectors.news_collector import get_company_news
+from tumkwe_invest.datacollection.collectors.news_collector import get_company_news
 
 
 class TestNewsCollector(unittest.TestCase):

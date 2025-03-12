@@ -7,7 +7,7 @@ import os
 import sys
 import tempfile
 
-from datacollection.config import CACHE_DIRECTORY
+from tumkwe_invest.datacollection.config import CACHE_DIRECTORY
 from unified_data_collection import collect_data, main, setup_logging
 
 

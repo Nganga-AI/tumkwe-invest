@@ -5,7 +5,7 @@ import unittest
 from unittest.mock import patch, MagicMock
 from datetime import datetime
 
-from datacollection.collectors.yahoo_news import get_yahoo_finance_news
+from tumkwe_invest.datacollection.collectors.yahoo_news import get_yahoo_finance_news
 
 
 class TestYahooNews(unittest.TestCase):

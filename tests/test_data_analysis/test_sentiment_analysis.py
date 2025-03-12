@@ -8,7 +8,7 @@ import pandas as pd
 import numpy as np
 from typing import Dict, Any, List
 
-from data_analysis.sentiment_analysis import SentimentAnalyzer
+from tumkwe_invest.data_analysis.sentiment_analysis import SentimentAnalyzer
 
 
 class TestSentimentAnalyzer(unittest.TestCase):

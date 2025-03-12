@@ -9,8 +9,8 @@ import json
 import pandas as pd
 from datetime import datetime, timedelta
 
-from datacollection.collector_manager import CollectorManager
-from datacollection.models import StockPrice, CompanyProfile, NewsArticle, SECFiling, KeyMetrics
+from tumkwe_invest.datacollection.collector_manager import CollectorManager
+from tumkwe_invest.datacollection.models import StockPrice, CompanyProfile, NewsArticle, SECFiling, KeyMetrics
 
 
 class TestIntegration(unittest.TestCase):
@@ -96,7 +96,7 @@ class TestIntegration(unittest.TestCase):
         )
         
         # Get validation reports
-        from datacollection.validation import validate_stock_prices
+        from tumkwe_invest.datacollection.validation import validate_stock_prices
         report = validate_stock_prices([valid_price, invalid_price], "AAPL")
         
         # Check validation report

@@ -7,11 +7,11 @@ import os
 from datetime import datetime
 import json
 
-from datacollection.collectors.sec_edgar import (
+from tumkwe_invest.datacollection.collectors.sec_edgar import (
     get_cik_by_ticker, get_recent_filings, download_filing_document,
     _respect_rate_limit
 )
-from datacollection.models import SECFiling
+from tumkwe_invest.datacollection.models import SECFiling
 
 
 class TestSECEdgar(unittest.TestCase):

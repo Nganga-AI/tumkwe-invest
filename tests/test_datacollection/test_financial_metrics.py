@@ -8,7 +8,7 @@ from datetime import datetime
 import pandas as pd
 import json
 
-from datacollection.collectors.financial_metrics import (
+from tumkwe_invest.datacollection.collectors.financial_metrics import (
     get_key_metrics_yf, get_alpha_vantage_metrics,
     get_comprehensive_metrics, get_quarterly_financial_data
 )

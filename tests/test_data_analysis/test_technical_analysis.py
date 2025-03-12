@@ -7,7 +7,7 @@ import pandas as pd
 import numpy as np
 from datetime import datetime, timedelta
 
-from data_analysis.technical_analysis import TechnicalAnalyzer
+from tumkwe_invest.data_analysis.technical_analysis import TechnicalAnalyzer
 
 
 class TestTechnicalAnalyzer(unittest.TestCase):

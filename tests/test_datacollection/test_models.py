@@ -4,7 +4,7 @@ Tests for the data models.
 import unittest
 from datetime import datetime, timedelta
 
-from datacollection.models import (
+from tumkwe_invest.datacollection.models import (
     StockPrice, FinancialStatement, CompanyProfile,
     NewsArticle, KeyMetrics, SECFiling,
     DataCollectionTask, ValidationReport,

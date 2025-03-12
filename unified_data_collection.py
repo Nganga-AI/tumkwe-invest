@@ -10,8 +10,8 @@ from datetime import datetime
 from tqdm import tqdm
 import logging
 
-from datacollection.collector_manager import CollectorManager
-from datacollection.config import CACHE_DIRECTORY
+from tumkwe_invest.datacollection.collector_manager import CollectorManager
+from tumkwe_invest.datacollection.config import CACHE_DIRECTORY
 
 
 def setup_logging():

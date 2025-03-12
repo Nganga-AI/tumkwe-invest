@@ -10,11 +10,11 @@ import os
 import tempfile
 from unittest.mock import patch, MagicMock
 
-from data_analysis.validation import AnalysisValidator
-from data_analysis.technical_analysis import TechnicalAnalyzer
-from data_analysis.fundamental_analysis import FundamentalAnalyzer
-from data_analysis.sentiment_analysis import SentimentAnalyzer
-from data_analysis.integrated_analysis import IntegratedAnalyzer
+from tumkwe_invest.data_analysis.validation import AnalysisValidator
+from tumkwe_invest.data_analysis.technical_analysis import TechnicalAnalyzer
+from tumkwe_invest.data_analysis.fundamental_analysis import FundamentalAnalyzer
+from tumkwe_invest.data_analysis.sentiment_analysis import SentimentAnalyzer
+from tumkwe_invest.data_analysis.integrated_analysis import IntegratedAnalyzer
 
 
 class TestAnalysisValidator(unittest.TestCase):

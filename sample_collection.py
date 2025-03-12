@@ -7,13 +7,13 @@ from datetime import datetime
 import pandas as pd
 from tqdm import tqdm
 
-from datacollection.collectors.yahoo_finance import (
+from tumkwe_invest.datacollection.collectors.yahoo_finance import (
     get_stock_data,
     get_company_profile,
     get_financial_statements
 )
-from datacollection.collectors.news_collector import get_company_news
-from datacollection.config import DEFAULT_START_DATE, DEFAULT_END_DATE
+from tumkwe_invest.datacollection.collectors.news_collector import get_company_news
+from tumkwe_invest.datacollection.config import DEFAULT_START_DATE, DEFAULT_END_DATE
 
 
 def sample_data_collection(symbol="AAPL", start_date=DEFAULT_START_DATE, end_date=DEFAULT_END_DATE):

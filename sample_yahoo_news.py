@@ -5,8 +5,8 @@ import os
 import pandas as pd
 from tqdm import tqdm
 
-from datacollection.collectors.yahoo_news import get_yahoo_finance_news
-from datacollection.collectors.yahoo_finance import get_company_profile
+from tumkwe_invest.datacollection.collectors.yahoo_news import get_yahoo_finance_news
+from tumkwe_invest.datacollection.collectors.yahoo_finance import get_company_profile
 
 
 def sample_yahoo_news_collection(symbols=None):
