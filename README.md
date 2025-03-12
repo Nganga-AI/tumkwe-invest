@@ -14,12 +14,19 @@ Tumkwe Invest is a Python package designed to help investors make data-driven de
   - SEC EDGAR filings
   - Financial metrics
   - News articles and sentiment data
+  - LangChain-powered news analysis
 - **Analysis Capabilities**:
 
   - Technical analysis (price patterns, indicators, volume analysis)
   - Fundamental analysis (financial statements, ratios, valuations)
   - Sentiment analysis (news, social media, market sentiment)
   - Integrated scoring system combining multiple analysis methods
+  - AI-powered news sentiment analysis using LangChain and OpenAI
+- **LLM Integration**:
+
+  - Support for multiple LLM providers (OpenAI, Anthropic, Groq, Ollama)
+  - Unified interface for provider switching
+  - LangChain integration for advanced prompt engineering
 
 ## Project Structure
 
@@ -35,6 +42,7 @@ tumkwe_invest/
 │   ├── collector_manager.py
 │   ├── collectors/         # Specific collectors
 │   │   ├── financial_metrics.py
+│   │   ├── langchain_news.py
 │   │   ├── news_collector.py
 │   │   ├── sec_edgar.py
 │   │   ├── yahoo_finance.py
@@ -42,6 +50,9 @@ tumkwe_invest/
 │   ├── config.py
 │   ├── models.py
 │   └── validation.py
+├── llm_management/         # LLM provider management
+│   ├── __init__.py
+│   └── llm_provider.py
 ```
 
 ## Installation
@@ -56,6 +67,8 @@ pip install -e .
 ```
 
 ## Usage
+
+### Basic Analysis
 
 ```python
 import tumkwe_invest as ti
@@ -84,6 +97,66 @@ recommendation = integrated.get_recommendation(final_score)
 print(f"Investment recommendation for AAPL: {recommendation}")
 ```
 
+### LangChain News Analysis with Multiple LLM Providers
+
+```python
+from tumkwe_invest.datacollection.collectors import LangChainNewsAnalyzer
+from tumkwe_invest.llm_management import LLMProvider
+
+# Initialize with OpenAI
+news_analyzer = LangChainNewsAnalyzer(
+    provider=LLMProvider.OPENAI,
+    api_key="your-openai-api-key",
+    model="gpt-4"
+)
+
+# Get news analysis
+analysis = news_analyzer.analyze_stock_news("What happened today with Microsoft stocks?")
+print(analysis)
+
+# Switch to Claude (Anthropic)
+news_analyzer.change_llm_provider(
+    provider=LLMProvider.ANTHROPIC,
+    api_key="your-anthropic-api-key",
+    model="claude-3-opus-20240229"
+)
+
+# Get analysis from Claude
+claude_analysis = news_analyzer.analyze_stock_news("Compare NVIDIA and AMD stock performance")
+print(claude_analysis)
+
+# Use local Ollama model
+news_analyzer.change_llm_provider(
+    provider=LLMProvider.OLLAMA,
+    model="llama3"  # Make sure this model is available in your Ollama instance
+)
+
+ollama_analysis = news_analyzer.analyze_stock_news("What are the recent trends for Tesla stock?")
+print(ollama_analysis)
+```
+
+### Direct LLM Provider Usage
+
+```python
+from tumkwe_invest.llm_management import get_llm_provider, LLMProvider
+
+# Get a specific LLM provider
+llm = get_llm_provider(
+    provider=LLMProvider.GROQ,
+    api_key="your-groq-api-key",
+    model="llama3-8b-8192"
+)
+
+# Use the LLM directly with LangChain
+from langchain.chains import LLMChain
+from langchain.prompts import PromptTemplate
+
+prompt = PromptTemplate.from_template("Analyze the following financial news: {news}")
+chain = LLMChain(llm=llm, prompt=prompt)
+result = chain.invoke({"news": "NVIDIA stock reached new heights after AI announcements"})
+print(result["text"])
+```
+
 ## Requirements
 
 - Python 3.8+
@@ -94,6 +167,14 @@ print(f"Investment recommendation for AAPL: {recommendation}")
 - nltk
 - beautifulsoup4
 - scikit-learn
+- langchain
+- langchain_core
+- langchain_community
+- langchain_openai
+- langchain_anthropic
+- langchain_groq
+- openai
+- anthropic
 
 ## License
 

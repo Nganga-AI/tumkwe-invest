@@ -8,7 +8,7 @@ newspaper3k
 numpy
 
 # API access
-# alpha-vantage
+alpha-vantage
 finnhub-python
 
 # Data processing
@@ -17,9 +17,17 @@ scipy
 
 # Utilities
 tqdm
-pickle
 
 # Data Analysis
 transformers
 torch
 matplotlib
+
+# Chat Agent
+langchain
+langchain-community
+langchain-core
+langchain-anthropic
+langchain-groq
+langchain-openai
+langchain-ollama
