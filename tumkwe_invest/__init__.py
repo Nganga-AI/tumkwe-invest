@@ -27,6 +27,6 @@ Data collection package for Tumkwe Invest.
 
 data_analysis/
 Data analysis package for Tumkwe Invest.
-This package provides tools for technical, fundamental, and sentiment analysis 
+This package provides tools for technical, fundamental, and sentiment analysis
 of stock market data, as well as integrated scoring mechanisms.
 """

@@ -1,15 +1,17 @@
 """
 Data models for storing collected financial information.
 """
+
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
-from typing import Dict, List, Optional, Any, Set
 from enum import Enum
+from typing import Any, Dict, List, Optional, Set
 
 
 @dataclass
 class FinancialData:
     """Base class for financial data"""
+
     symbol: str
     source: str
     last_updated: datetime = field(default_factory=datetime.now)
@@ -20,6 +22,7 @@ class FinancialData:
 @dataclass
 class StockPrice(FinancialData):
     """Stock price information"""
+
     date: datetime
     open: float
     high: float
@@ -31,6 +34,7 @@ class StockPrice(FinancialData):
 
 class StatementType(Enum):
     """Types of financial statements"""
+
     INCOME = "income_statement"
     BALANCE = "balance_sheet"
     CASH_FLOW = "cash_flow"
@@ -40,6 +44,7 @@ class StatementType(Enum):
 
 class Period(Enum):
     """Reporting periods for financial data"""
+
     ANNUAL = "annual"
     QUARTERLY = "quarterly"
     TTM = "ttm"  # Trailing twelve months
@@ -48,6 +53,7 @@ class Period(Enum):
 @dataclass
 class FinancialStatement(FinancialData):
     """Financial statement data"""
+
     statement_type: str  # income_statement, balance_sheet, cash_flow
     period: str  # annual, quarterly
     date: datetime
@@ -60,6 +66,7 @@ class FinancialStatement(FinancialData):
 @dataclass
 class CompanyProfile(FinancialData):
     """Company profile information"""
+
     name: str
     sector: str
     industry: str
@@ -78,6 +85,7 @@ class CompanyProfile(FinancialData):
 @dataclass
 class KeyMetrics(FinancialData):
     """Key financial metrics for a company"""
+
     date: datetime
     pe_ratio: Optional[float] = None
     pb_ratio: Optional[float] = None
@@ -95,6 +103,7 @@ class KeyMetrics(FinancialData):
 @dataclass
 class NewsArticle:
     """News article related to a company"""
+
     company_symbol: str
     title: str
     publication: str
@@ -110,6 +119,7 @@ class NewsArticle:
 @dataclass
 class SECFiling:
     """SEC filing information"""
+
     company_symbol: str
     filing_type: str  # 10-K, 10-Q, 8-K, etc.
     filing_date: datetime
@@ -123,6 +133,7 @@ class SECFiling:
 @dataclass
 class DataCollectionTask:
     """Represents a data collection task for scheduling"""
+
     task_name: str
     data_type: str
     company_symbols: List[str]
@@ -135,6 +146,7 @@ class DataCollectionTask:
 @dataclass
 class ValidationReport:
     """Report on data validation results"""
+
     timestamp: datetime = field(default_factory=datetime.now)
     data_type: str = ""
     source: str = ""
