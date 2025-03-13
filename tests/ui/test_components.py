@@ -1,9 +1,19 @@
 """Test cases for the components module."""
 
 import unittest
+
 from tumkwe_invest.ui.components import (
-    UIComponent, Card, Button, Tooltip, Tab, ToggleSwitch, Chart, SectionLayout,
-    create_view_mode_toggle, create_tooltip_with_info, create_metric_card
+    Button,
+    Card,
+    Chart,
+    SectionLayout,
+    Tab,
+    ToggleSwitch,
+    Tooltip,
+    UIComponent,
+    create_metric_card,
+    create_tooltip_with_info,
+    create_view_mode_toggle,
 )
 
 
@@ -25,14 +35,14 @@ class TestUIComponent(unittest.TestCase):
         """Test adding CSS class."""
         self.component.add_class("primary")
         self.component.add_class("large")
-        
+
         self.assertIn("primary", self.component.classes)
         self.assertIn("large", self.component.classes)
-        
+
         # Adding the same class twice should have no effect
         self.component.add_class("primary")
         self.assertEqual(self.component.classes.count("primary"), 1)
-        
+
         # Test method chaining
         result = self.component.add_class("bold")
         self.assertIs(result, self.component)
@@ -42,10 +52,10 @@ class TestUIComponent(unittest.TestCase):
         """Test setting HTML attribute."""
         self.component.set_attribute("data-test", "value")
         self.component.set_attribute("aria-label", "Test Component")
-        
+
         self.assertEqual(self.component.attributes["data-test"], "value")
         self.assertEqual(self.component.attributes["aria-label"], "Test Component")
-        
+
         # Test method chaining
         result = self.component.set_attribute("title", "Test Title")
         self.assertIs(result, self.component)
@@ -55,10 +65,12 @@ class TestUIComponent(unittest.TestCase):
         """Test registering an event handler."""
         self.component.on_event("click", "handleClick()")
         self.component.on_event("mouseover", "handleMouseover()")
-        
+
         self.assertEqual(self.component.event_handlers["click"], "handleClick()")
-        self.assertEqual(self.component.event_handlers["mouseover"], "handleMouseover()")
-        
+        self.assertEqual(
+            self.component.event_handlers["mouseover"], "handleMouseover()"
+        )
+
         # Test method chaining
         result = self.component.on_event("keydown", "handleKeydown()")
         self.assertIs(result, self.component)
@@ -69,9 +81,9 @@ class TestUIComponent(unittest.TestCase):
         self.component.add_class("primary")
         self.component.set_attribute("data-test", "value")
         self.component.on_event("click", "handleClick()")
-        
+
         component_dict = self.component.to_dict()
-        
+
         self.assertEqual(component_dict["id"], "test-component")
         self.assertEqual(component_dict["classes"], ["primary"])
         self.assertEqual(component_dict["attributes"], {"data-test": "value"})
@@ -84,9 +96,7 @@ class TestCard(unittest.TestCase):
     def setUp(self):
         """Set up test fixtures."""
         self.card = Card(
-            title="Test Card",
-            content="Card content",
-            component_id="test-card"
+            title="Test Card", content="Card content", component_id="test-card"
         )
 
     def test_initialization(self):
@@ -102,7 +112,7 @@ class TestCard(unittest.TestCase):
         """Test setting card title."""
         self.card.set_title("Updated Title")
         self.assertEqual(self.card.title, "Updated Title")
-        
+
         # Test method chaining
         result = self.card.set_title("New Title")
         self.assertIs(result, self.card)
@@ -113,12 +123,12 @@ class TestCard(unittest.TestCase):
         # Test with string content
         self.card.set_content("New content")
         self.assertEqual(self.card.content, "New content")
-        
+
         # Test with dictionary content
         content_dict = {"key1": "value1", "key2": "value2"}
         self.card.set_content(content_dict)
         self.assertEqual(self.card.content, content_dict)
-        
+
         # Test method chaining
         result = self.card.set_content("Final content")
         self.assertIs(result, self.card)
@@ -128,7 +138,7 @@ class TestCard(unittest.TestCase):
         """Test setting card footer."""
         self.card.set_footer("Card footer")
         self.assertEqual(self.card.footer, "Card footer")
-        
+
         # Test method chaining
         result = self.card.set_footer("Updated footer")
         self.assertIs(result, self.card)
@@ -138,10 +148,10 @@ class TestCard(unittest.TestCase):
         """Test adding header action."""
         action = {"icon": "edit", "label": "Edit", "handler": "editItem()"}
         self.card.add_header_action(action)
-        
+
         self.assertEqual(len(self.card.header_actions), 1)
         self.assertEqual(self.card.header_actions[0], action)
-        
+
         # Add another action
         action2 = {"icon": "delete", "label": "Delete", "handler": "deleteItem()"}
         result = self.card.add_header_action(action2)
@@ -154,9 +164,9 @@ class TestCard(unittest.TestCase):
         self.card.set_footer("Card footer")
         action = {"icon": "edit", "label": "Edit", "handler": "editItem()"}
         self.card.add_header_action(action)
-        
+
         card_dict = self.card.to_dict()
-        
+
         self.assertEqual(card_dict["type"], "card")
         self.assertEqual(card_dict["title"], "Test Card")
         self.assertEqual(card_dict["content"], "Card content")
@@ -173,7 +183,7 @@ class TestButton(unittest.TestCase):
             label="Click Me",
             variant="primary",
             size="medium",
-            component_id="test-button"
+            component_id="test-button",
         )
 
     def test_initialization(self):
@@ -190,7 +200,7 @@ class TestButton(unittest.TestCase):
         """Test setting button icon."""
         self.button.set_icon("plus")
         self.assertEqual(self.button.icon, "plus")
-        
+
         # Test method chaining
         result = self.button.set_icon("minus")
         self.assertIs(result, self.button)
@@ -199,14 +209,14 @@ class TestButton(unittest.TestCase):
     def test_set_disabled(self):
         """Test setting disabled state."""
         self.assertFalse(self.button.disabled)
-        
+
         self.button.set_disabled(True)
         self.assertTrue(self.button.disabled)
-        
+
         # Test with default value
         self.button.set_disabled()
         self.assertTrue(self.button.disabled)
-        
+
         # Test method chaining
         result = self.button.set_disabled(False)
         self.assertIs(result, self.button)
@@ -216,9 +226,9 @@ class TestButton(unittest.TestCase):
         """Test converting button to dictionary."""
         self.button.set_icon("check")
         self.button.set_disabled(True)
-        
+
         button_dict = self.button.to_dict()
-        
+
         self.assertEqual(button_dict["type"], "button")
         self.assertEqual(button_dict["label"], "Click Me")
         self.assertEqual(button_dict["icon"], "check")
@@ -231,9 +241,7 @@ class TestTooltip(unittest.TestCase):
     def setUp(self):
         """Set up test fixtures."""
         self.tooltip = Tooltip(
-            content="This is a tooltip",
-            position="top",
-            component_id="test-tooltip"
+            content="This is a tooltip", position="top", component_id="test-tooltip"
         )
 
     def test_initialization(self):
@@ -248,7 +256,7 @@ class TestTooltip(unittest.TestCase):
         """Test setting tooltip content."""
         self.tooltip.set_content("Updated tooltip content")
         self.assertEqual(self.tooltip.content, "Updated tooltip content")
-        
+
         # Test method chaining
         result = self.tooltip.set_content("Final content")
         self.assertIs(result, self.tooltip)
@@ -260,7 +268,7 @@ class TestTooltip(unittest.TestCase):
         self.assertEqual(self.tooltip.position, "bottom")
         self.assertIn("tooltip-bottom", self.tooltip.classes)
         self.assertNotIn("tooltip-top", self.tooltip.classes)
-        
+
         # Test method chaining
         result = self.tooltip.set_position("left")
         self.assertIs(result, self.tooltip)
@@ -272,10 +280,10 @@ class TestTooltip(unittest.TestCase):
         """Test removing a CSS class."""
         self.tooltip.add_class("test-class")
         self.assertIn("test-class", self.tooltip.classes)
-        
+
         self.tooltip.remove_class("test-class")
         self.assertNotIn("test-class", self.tooltip.classes)
-        
+
         # Test method chaining
         result = self.tooltip.remove_class("non-existent")
         self.assertIs(result, self.tooltip)
@@ -283,7 +291,7 @@ class TestTooltip(unittest.TestCase):
     def test_to_dict(self):
         """Test converting tooltip to dictionary."""
         tooltip_dict = self.tooltip.to_dict()
-        
+
         self.assertEqual(tooltip_dict["type"], "tooltip")
         self.assertEqual(tooltip_dict["content"], "This is a tooltip")
         self.assertEqual(tooltip_dict["position"], "top")
@@ -296,13 +304,9 @@ class TestTab(unittest.TestCase):
         """Set up test fixtures."""
         self.tabs = [
             {"label": "Tab 1", "content": {"text": "Content 1"}},
-            {"label": "Tab 2", "content": {"text": "Content 2"}}
+            {"label": "Tab 2", "content": {"text": "Content 2"}},
         ]
-        self.tab = Tab(
-            tabs=self.tabs,
-            default_tab=0,
-            component_id="test-tab"
-        )
+        self.tab = Tab(tabs=self.tabs, default_tab=0, component_id="test-tab")
 
     def test_initialization(self):
         """Test tab initialization."""
@@ -315,11 +319,11 @@ class TestTab(unittest.TestCase):
         """Test adding a tab."""
         new_tab = {"label": "Tab 3", "content": {"text": "Content 3"}}
         self.tab.add_tab("Tab 3", {"text": "Content 3"})
-        
+
         self.assertEqual(len(self.tab.tabs), 3)
         self.assertEqual(self.tab.tabs[2]["label"], "Tab 3")
         self.assertEqual(self.tab.tabs[2]["content"]["text"], "Content 3")
-        
+
         # Test method chaining
         result = self.tab.add_tab("Tab 4", {"text": "Content 4"})
         self.assertIs(result, self.tab)
@@ -329,11 +333,11 @@ class TestTab(unittest.TestCase):
         """Test setting active tab."""
         self.tab.set_active_tab(1)
         self.assertEqual(self.tab.active_tab, 1)
-        
+
         # Test with invalid index (should not change)
         self.tab.set_active_tab(99)
         self.assertEqual(self.tab.active_tab, 1)
-        
+
         # Test method chaining
         result = self.tab.set_active_tab(0)
         self.assertIs(result, self.tab)
@@ -342,7 +346,7 @@ class TestTab(unittest.TestCase):
     def test_to_dict(self):
         """Test converting tab to dictionary."""
         tab_dict = self.tab.to_dict()
-        
+
         self.assertEqual(tab_dict["type"], "tabs")
         self.assertEqual(tab_dict["tabs"], self.tabs)
         self.assertEqual(tab_dict["activeTab"], 0)
@@ -354,9 +358,7 @@ class TestToggleSwitch(unittest.TestCase):
     def setUp(self):
         """Set up test fixtures."""
         self.toggle = ToggleSwitch(
-            label="Enable Feature",
-            checked=False,
-            component_id="test-toggle"
+            label="Enable Feature", checked=False, component_id="test-toggle"
         )
 
     def test_initialization(self):
@@ -371,7 +373,7 @@ class TestToggleSwitch(unittest.TestCase):
         """Test setting checked state."""
         self.toggle.set_checked(True)
         self.assertTrue(self.toggle.checked)
-        
+
         # Test method chaining
         result = self.toggle.set_checked(False)
         self.assertIs(result, self.toggle)
@@ -382,7 +384,7 @@ class TestToggleSwitch(unittest.TestCase):
         description = "This feature enables advanced functionality."
         self.toggle.set_description(description)
         self.assertEqual(self.toggle.description, description)
-        
+
         # Test method chaining
         new_description = "Updated description"
         result = self.toggle.set_description(new_description)
@@ -394,9 +396,9 @@ class TestToggleSwitch(unittest.TestCase):
         description = "This feature enables advanced functionality."
         self.toggle.set_description(description)
         self.toggle.set_checked(True)
-        
+
         toggle_dict = self.toggle.to_dict()
-        
+
         self.assertEqual(toggle_dict["type"], "toggleSwitch")
         self.assertEqual(toggle_dict["label"], "Enable Feature")
         self.assertTrue(toggle_dict["checked"])
@@ -412,18 +414,15 @@ class TestChart(unittest.TestCase):
             "type": "line",
             "data": {
                 "labels": ["Jan", "Feb", "Mar"],
-                "datasets": [{
-                    "label": "Sales",
-                    "data": [10, 20, 30]
-                }]
+                "datasets": [{"label": "Sales", "data": [10, 20, 30]}],
             },
-            "title": "Monthly Sales"
+            "title": "Monthly Sales",
         }
         self.chart = Chart(
             chart_config=self.chart_config,
             height="400px",
             width="100%",
-            component_id="test-chart"
+            component_id="test-chart",
         )
 
     def test_initialization(self):
@@ -439,7 +438,7 @@ class TestChart(unittest.TestCase):
         """Test setting chart height."""
         self.chart.set_height("500px")
         self.assertEqual(self.chart.height, "500px")
-        
+
         # Test method chaining
         result = self.chart.set_height("600px")
         self.assertIs(result, self.chart)
@@ -449,7 +448,7 @@ class TestChart(unittest.TestCase):
         """Test setting chart width."""
         self.chart.set_width("80%")
         self.assertEqual(self.chart.width, "80%")
-        
+
         # Test method chaining
         result = self.chart.set_width("90%")
         self.assertIs(result, self.chart)
@@ -457,15 +456,12 @@ class TestChart(unittest.TestCase):
 
     def test_update_config(self):
         """Test updating chart configuration."""
-        updates = {
-            "title": "Updated Title",
-            "options": {"responsive": False}
-        }
+        updates = {"title": "Updated Title", "options": {"responsive": False}}
         self.chart.update_config(updates)
-        
+
         self.assertEqual(self.chart.chart_config["title"], "Updated Title")
         self.assertEqual(self.chart.chart_config["options"]["responsive"], False)
-        
+
         # Test method chaining
         result = self.chart.update_config({"title": "Final Title"})
         self.assertIs(result, self.chart)
@@ -474,7 +470,7 @@ class TestChart(unittest.TestCase):
     def test_to_dict(self):
         """Test converting chart to dictionary."""
         chart_dict = self.chart.to_dict()
-        
+
         self.assertEqual(chart_dict["type"], "chart")
         self.assertEqual(chart_dict["chartConfig"], self.chart_config)
         self.assertEqual(chart_dict["height"], "400px")
@@ -488,13 +484,13 @@ class TestSectionLayout(unittest.TestCase):
         """Set up test fixtures."""
         self.components = [
             {"type": "card", "config": {"title": "Card 1"}},
-            {"type": "button", "config": {"label": "Button 1"}}
+            {"type": "button", "config": {"label": "Button 1"}},
         ]
         self.section = SectionLayout(
             title="Test Section",
             components=self.components,
             collapsed=False,
-            component_id="test-section"
+            component_id="test-section",
         )
 
     def test_initialization(self):
@@ -510,10 +506,10 @@ class TestSectionLayout(unittest.TestCase):
         """Test adding a component to the section."""
         new_component = {"type": "chart", "config": {"type": "line"}}
         self.section.add_component(new_component)
-        
+
         self.assertEqual(len(self.section.components), 3)
         self.assertEqual(self.section.components[2], new_component)
-        
+
         # Test method chaining
         result = self.section.add_component({"type": "tooltip", "config": {}})
         self.assertIs(result, self.section)
@@ -524,7 +520,7 @@ class TestSectionLayout(unittest.TestCase):
         description = "This section contains test components."
         self.section.set_description(description)
         self.assertEqual(self.section.description, description)
-        
+
         # Test method chaining
         new_description = "Updated section description"
         result = self.section.set_description(new_description)
@@ -535,7 +531,7 @@ class TestSectionLayout(unittest.TestCase):
         """Test setting collapsed state."""
         self.section.set_collapsed(True)
         self.assertTrue(self.section.collapsed)
-        
+
         # Test method chaining
         result = self.section.set_collapsed(False)
         self.assertIs(result, self.section)
@@ -545,9 +541,9 @@ class TestSectionLayout(unittest.TestCase):
         """Test converting section layout to dictionary."""
         description = "This section contains test components."
         self.section.set_description(description)
-        
+
         section_dict = self.section.to_dict()
-        
+
         self.assertEqual(section_dict["type"], "section")
         self.assertEqual(section_dict["title"], "Test Section")
         self.assertEqual(section_dict["description"], description)
@@ -565,7 +561,7 @@ class TestHelperFunctions(unittest.TestCase):
         self.assertEqual(toggle["type"], "toggleSwitch")
         self.assertEqual(toggle["label"], "Advanced View")
         self.assertFalse(toggle["checked"])
-        
+
         # Test with advanced mode
         toggle = create_view_mode_toggle("advanced")
         self.assertEqual(toggle["type"], "toggleSwitch")
@@ -575,7 +571,7 @@ class TestHelperFunctions(unittest.TestCase):
     def test_create_tooltip_with_info(self):
         """Test creating an info tooltip."""
         tooltip = create_tooltip_with_info("test-target", "This is info content")
-        
+
         self.assertEqual(tooltip["type"], "tooltip")
         self.assertEqual(tooltip["content"], "This is info content")
         self.assertEqual(tooltip["position"], "top")
@@ -586,16 +582,14 @@ class TestHelperFunctions(unittest.TestCase):
         """Test creating a metric card."""
         # Test with minimal parameters
         card = create_metric_card(
-            title="Revenue",
-            value="$1,000,000",
-            description="Annual revenue"
+            title="Revenue", value="$1,000,000", description="Annual revenue"
         )
-        
+
         self.assertEqual(card["type"], "card")
         self.assertEqual(card["title"], "Revenue")
         self.assertEqual(card["content"]["value"], "$1,000,000")
         self.assertEqual(card["content"]["description"], "Annual revenue")
-        
+
         # Test with all parameters
         card = create_metric_card(
             title="Growth",
@@ -603,16 +597,18 @@ class TestHelperFunctions(unittest.TestCase):
             description="Year over year",
             trend="+5%",
             trend_direction="up",
-            tooltip="Growth measures increase over time."
+            tooltip="Growth measures increase over time.",
         )
-        
+
         self.assertEqual(card["type"], "card")
         self.assertEqual(card["title"], "Growth")
         self.assertEqual(card["content"]["value"], "15%")
         self.assertEqual(card["content"]["description"], "Year over year")
         self.assertEqual(card["content"]["trend"], "+5%")
         self.assertEqual(card["content"]["trendDirection"], "up")
-        self.assertEqual(card["attributes"]["data-tooltip"], "Growth measures increase over time.")
+        self.assertEqual(
+            card["attributes"]["data-tooltip"], "Growth measures increase over time."
+        )
 
 
 if __name__ == "__main__":

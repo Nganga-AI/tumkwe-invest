@@ -49,9 +49,6 @@ This package provides components for visualizing data, creating dashboards,
 and ensuring a user-friendly experience with both basic and advanced views.
 """
 
-from . import data_analysis
-from . import datacollection
-from . import llm_management
-from . import ui
+from . import data_analysis, datacollection, llm_management, ui
 
 __all__ = ["data_analysis", "datacollection", "llm_management", "ui"]
