@@ -7,7 +7,7 @@ import unittest
 from datetime import timedelta
 from unittest.mock import patch
 
-from datacollection.config import (
+from tumkwe_invest.datacollection.config import (
     CACHE_DIRECTORY,
     DATA_REFRESH_INTERVAL,
     VALIDATION,
@@ -23,11 +23,11 @@ class TestConfig(unittest.TestCase):
         # Re-import to reload with the mocked environment
         from importlib import reload
 
-        import datacollection.config
+        import tumkwe_invest.datacollection.config
 
-        reload(datacollection.config)
+        reload(tumkwe_invest.datacollection.config)
 
-        self.assertEqual(datacollection.config.ALPHA_VANTAGE_API_KEY, "test_key")
+        self.assertEqual(tumkwe_invest.datacollection.config.ALPHA_VANTAGE_API_KEY, "test_key")
 
     def test_refresh_intervals(self):
         """Test refresh interval configuration."""

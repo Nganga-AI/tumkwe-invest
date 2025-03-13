@@ -10,7 +10,7 @@ from langchain_core.language_models import BaseChatModel
 from langchain_openai import ChatOpenAI
 from langchain_anthropic import ChatAnthropic
 from langchain_groq import ChatGroq
-from langchain_ollama import ChatOllama as Ollama
+from langchain_ollama import ChatOllama
 
 
 class LLMProvider(Enum):
@@ -84,7 +84,7 @@ def get_llm_provider(
     
     elif provider == LLMProvider.OLLAMA:
         # Ollama requires different initialization parameters
-        return Ollama(model=model, temperature=temperature, **kwargs)
+        return ChatOllama(model=model, temperature=temperature, **kwargs)
     
     else:
         raise ValueError(f"Unsupported LLM provider: {provider}")

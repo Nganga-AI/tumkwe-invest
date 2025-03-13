@@ -53,6 +53,10 @@ tumkwe_invest/
 ├── llm_management/         # LLM provider management
 │   ├── __init__.py
 │   └── llm_provider.py
+├── tests/                  # Test cases
+│   ├── datacollection/
+│   ├── llm_management/
+│   └── conftest.py
 ```
 
 ## Installation
@@ -157,6 +161,45 @@ result = chain.invoke({"news": "NVIDIA stock reached new heights after AI announ
 print(result["text"])
 ```
 
+## Testing
+
+The project includes a comprehensive test suite using unittest. You can run the tests in several ways:
+
+```bash
+# Run all tests
+python -m unittest discover -s tests
+
+# Run all tests with custom runner (better handling of integration tests)
+python -m tests.conftest
+
+# Run tests for a specific module
+python -m unittest tests.llm_management.test_llm_provider
+
+# Run integration tests too (by default they're skipped)
+RUN_INTEGRATION_TESTS=1 python -m unittest discover -s tests
+
+# Run tests with verbose output
+python -m unittest discover -s tests -v
+```
+
+### Setting up for integration tests
+
+To run integration tests that interact with actual LLM APIs, you need to set up the following environment variables:
+
+```bash
+# For OpenAI tests
+export OPENAI_API_KEY=your-openai-api-key
+
+# For Anthropic tests
+export ANTHROPIC_API_KEY=your-anthropic-api-key
+
+# For Groq tests
+export GROQ_API_KEY=your-groq-api-key
+
+# For Ollama tests, ensure the Ollama server is running locally
+# with the required models available
+```
+
 ## Requirements
 
 - Python 3.8+
@@ -173,6 +216,7 @@ print(result["text"])
 - langchain_openai
 - langchain_anthropic
 - langchain_groq
+- langchain_ollama
 - openai
 - anthropic
 
