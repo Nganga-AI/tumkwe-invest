@@ -161,6 +161,46 @@ result = chain.invoke({"news": "NVIDIA stock reached new heights after AI announ
 print(result["text"])
 ```
 
+## User Interface Module
+
+The UI module provides components for creating intuitive, accessible interfaces for users with varying levels of financial expertise.
+
+### Key Components
+
+- **Visualization**: Chart and graph components using Chart.js/D3.js
+- **Dashboard**: Layouts for displaying combined technical, fundamental, and sentiment insights
+- **Components**: Reusable UI elements (cards, buttons, tooltips) 
+- **Utilities**: Helper functions for formatting and accessibility
+
+### Example Usage
+
+```python
+from tumkwe_invest.datacollection.collectors.yahoo_finance import YahooFinanceCollector
+from tumkwe_invest.data_analysis.technical_analysis import calculate_indicators
+from tumkwe_invest.ui.dashboard import StockDashboard
+
+# Collect data
+collector = YahooFinanceCollector()
+stock_data = collector.get_historical_data("AAPL", period="1mo")
+
+# Analyze data
+indicators = calculate_indicators(stock_data)
+
+# Create dashboard
+dashboard = StockDashboard("AAPL", "Apple Inc.")
+dashboard.set_price_data(
+    stock_data["dates"], 
+    stock_data["close_prices"],
+    stock_data["volumes"]
+)
+dashboard.set_technical_indicators(indicators)
+
+# Build dashboard
+config = dashboard.build_dashboard()
+```
+
+For more details and examples, see the [UI module documentation](/tumkwe_invest/ui/README.md).
+
 ## Testing
 
 The project includes a comprehensive test suite using unittest. You can run the tests in several ways:

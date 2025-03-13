@@ -1,60 +1,52 @@
 """
-Test runner module for Tumkwe Invest.
+Tests for the config module.
 """
 
-import unittest
 import os
-import sys
-from pathlib import Path
+import unittest
+from datetime import timedelta
+from unittest.mock import patch
+
+from tumkwe_invest.datacollection.config import (
+    CACHE_DIRECTORY,
+    DATA_REFRESH_INTERVAL,
+    VALIDATION,
+)
 
 
-class IntegrationTestRunner(unittest.TextTestRunner):
-    """
-    Custom test runner that allows for integration tests to be run only when specified.
-    
-    Set the environment variable RUN_INTEGRATION_TESTS=1 to run integration tests.
-    """
-    
-    def run(self, test):
-        """
-        Run the test suite, skipping integration tests if not explicitly enabled.
-        """
-        run_integration = os.environ.get("RUN_INTEGRATION_TESTS") == "1"
-        
-        # Mark integration tests to skip if not running integration tests
-        if not run_integration:
-            for test_case in test:
-                if isinstance(test_case, unittest.TestCase):
-                    if "Integration" in test_case.__class__.__name__:
-                        setattr(test_case, "setUp", lambda: test_case.skipTest("Integration tests disabled"))
-                else:
-                    # Handle test suites
-                    for sub_test in test_case:
-                        if isinstance(sub_test, unittest.TestCase):
-                            if "Integration" in sub_test.__class__.__name__:
-                                setattr(sub_test, "setUp", lambda: sub_test.skipTest("Integration tests disabled"))
-                                
-        return super().run(test)
+class TestConfig(unittest.TestCase):
+    """Tests for the config module."""
 
+    @patch.dict(os.environ, {"ALPHA_VANTAGE_API_KEY": "test_key"})
+    def test_environment_variable_loading(self):
+        """Test that environment variables are loaded correctly."""
+        # Re-import to reload with the mocked environment
+        from importlib import reload
 
-def run_all_tests():
-    """
-    Run all tests in the project.
-    """
-    # Find test directory
-    test_dir = Path(__file__).parent
-    
-    # Discover tests
-    loader = unittest.TestLoader()
-    suite = loader.discover(str(test_dir))
-    
-    # Run tests with custom runner
-    runner = IntegrationTestRunner(verbosity=2)
-    result = runner.run(suite)
-    
-    # Exit with non-zero code if tests failed
-    sys.exit(not result.wasSuccessful())
+        import tumkwe_invest.datacollection.config
+
+        reload(tumkwe_invest.datacollection.config)
+
+        self.assertEqual(tumkwe_invest.datacollection.config.ALPHA_VANTAGE_API_KEY, "test_key")
+
+    def test_refresh_intervals(self):
+        """Test refresh interval configuration."""
+        self.assertIsInstance(DATA_REFRESH_INTERVAL["market_data"], timedelta)
+        self.assertIsInstance(DATA_REFRESH_INTERVAL["financial_statements"], timedelta)
+        self.assertIsInstance(DATA_REFRESH_INTERVAL["news"], timedelta)
+        self.assertIsInstance(DATA_REFRESH_INTERVAL["sec_filings"], timedelta)
+
+    def test_cache_directory_creation(self):
+        """Test that the cache directory is created."""
+        self.assertTrue(os.path.exists(CACHE_DIRECTORY))
+
+    def test_validation_settings(self):
+        """Test validation settings."""
+        self.assertIn("max_price_change_percent", VALIDATION)
+        self.assertIn("min_data_completeness", VALIDATION)
+        self.assertIn("max_pe_ratio", VALIDATION)
+        self.assertIn("max_outlier_std", VALIDATION)
 
 
 if __name__ == "__main__":
-    run_all_tests()
+    unittest.main()
