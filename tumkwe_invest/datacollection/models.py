@@ -23,12 +23,12 @@ class FinancialData:
 class StockPrice(FinancialData):
     """Stock price information"""
 
-    date: datetime
-    open: float
-    high: float
-    low: float
-    close: float
-    volume: int
+    date: datetime = field(default_factory=datetime.now)
+    open: float = field()
+    high: float = field()
+    low: float = field()
+    close: float = field()
+    volume: int = field()
     adjusted_close: Optional[float] = None
 
 
@@ -54,10 +54,10 @@ class Period(Enum):
 class FinancialStatement(FinancialData):
     """Financial statement data"""
 
-    statement_type: str  # income_statement, balance_sheet, cash_flow
-    period: str  # annual, quarterly
-    date: datetime
-    data: Dict[str, float]
+    statement_type: str = field()  # income_statement, balance_sheet, cash_flow
+    period: str = field()  # annual, quarterly
+    date: datetime = field(default_factory=datetime.now)
+    data: Dict[str, float] = field()
     currency: str = "USD"
     fiscal_year: Optional[int] = None
     fiscal_quarter: Optional[int] = None
@@ -67,10 +67,10 @@ class FinancialStatement(FinancialData):
 class CompanyProfile(FinancialData):
     """Company profile information"""
 
-    name: str
-    sector: str
-    industry: str
-    description: str
+    name: str = field()
+    sector: str = field()
+    industry: str = field()
+    description: str = field()
     website: Optional[str] = None
     employees: Optional[int] = None
     country: Optional[str] = None
@@ -86,7 +86,7 @@ class CompanyProfile(FinancialData):
 class KeyMetrics(FinancialData):
     """Key financial metrics for a company"""
 
-    date: datetime
+    date: datetime = field(default_factory=datetime.now)
     pe_ratio: Optional[float] = None
     pb_ratio: Optional[float] = None
     dividend_yield: Optional[float] = None
@@ -123,7 +123,7 @@ class SECFiling:
     company_symbol: str
     filing_type: str  # 10-K, 10-Q, 8-K, etc.
     filing_date: datetime
-    period_end_date: Optional[datetime] = None
+    period_end_date: Optional[datetime] = field(default_factory=lambda: None)
     accession_number: Optional[str] = None
     url: Optional[str] = None
     document_text: Optional[str] = None
@@ -137,8 +137,8 @@ class DataCollectionTask:
     task_name: str
     data_type: str
     company_symbols: List[str]
-    last_run: Optional[datetime] = None
-    next_run: Optional[datetime] = None
+    last_run: Optional[datetime] = field(default_factory=lambda: None)
+    next_run: Optional[datetime] = field(default_factory=lambda: None)
     interval: timedelta = field(default_factory=lambda: timedelta(days=1))
     priority: int = 1  # Higher number = higher priority
 
