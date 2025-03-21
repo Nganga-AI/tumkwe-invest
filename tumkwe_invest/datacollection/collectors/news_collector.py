@@ -2,14 +2,11 @@
 Collector for company news articles.
 """
 
-import json
 import time
 from datetime import datetime, timedelta
 from typing import List
 
 import requests
-
-# from newspaper import Article
 
 from ..config import NEWS_API_KEY
 from ..models import NewsArticle
@@ -36,7 +33,7 @@ def get_company_news(
     if not NEWS_API_KEY:
         print("Warning: NEWS_API_KEY not set. Cannot fetch news.")
         return []
-    
+
     if not company_symbol and not company_name:
         raise ValueError("Must provide company_symbol or company_name")
 
@@ -71,15 +68,6 @@ def get_company_news(
                     url=article.get("url", ""),
                     summary=article.get("description", ""),
                 )
-
-                # Try to fetch full content (may not always work due to site restrictions)
-                # try:
-                #     full_article = Article(article.get("url"))
-                #     full_article.download()
-                #     full_article.parse()
-                #     news.content = full_article.text
-                # except Exception:
-                #     pass
 
                 articles.append(news)
             except Exception as e:

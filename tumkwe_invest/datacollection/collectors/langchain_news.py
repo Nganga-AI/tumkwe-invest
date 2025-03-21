@@ -1,5 +1,7 @@
 """
 Module for collecting and analyzing news using LangChain agents and Yahoo Finance.
+
+=> @TODO Not working : to_delete
 """
 
 from typing import Dict, List, Optional, Union

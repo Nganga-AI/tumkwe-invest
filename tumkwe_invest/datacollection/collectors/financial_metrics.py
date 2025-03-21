@@ -2,10 +2,8 @@
 Collector for comprehensive financial metrics.
 """
 
-import json
 import os
-import time
-from datetime import datetime, timedelta
+from datetime import datetime
 from typing import Any, Dict, List, Optional
 
 import requests
@@ -13,7 +11,6 @@ import yfinance as yf
 
 from ..config import ALPHA_VANTAGE_API_KEY, CACHE_DIRECTORY
 from ..models import FinancialStatement, KeyMetrics
-from dataclasses import asdict
 
 # Create cache directory
 os.makedirs(os.path.join(CACHE_DIRECTORY, "financial_metrics"), exist_ok=True)
@@ -55,44 +52,6 @@ def get_key_metrics_yf(symbol: str) -> Optional[KeyMetrics]:
             quick_ratio=info.get("quickRatio"),
         )
 
-        # Try to get additional metrics from financial data
-        # try:
-        #     balance_sheet = ticker.balance_sheet
-        #     if not balance_sheet.empty:
-        #         latest_date = balance_sheet.columns[0]
-        #         total_assets = balance_sheet.loc["Total Assets"][latest_date]
-        #         total_liabilities = balance_sheet.loc[
-        #             "Total Liabilities Net Minority Interest"
-        #         ][latest_date]
-        #         total_equity = balance_sheet.loc["Total Equity"][latest_date]
-        #         current_assets = balance_sheet.loc["Current Assets"][latest_date]
-        #         current_liabilities = balance_sheet.loc["Current Liabilities"][
-        #             latest_date
-        #         ]
-
-        #         # Calculate additional ratios
-        #         metrics.debt_to_equity = (
-        #             total_liabilities / total_equity if total_equity else None
-        #         )
-        #         metrics.current_ratio = (
-        #             current_assets / current_liabilities
-        #             if current_liabilities
-        #             else None
-        #         )
-
-        #         # Get income statement for ROE and ROA
-        #         income_stmt = ticker.income_stmt
-        #         if not income_stmt.empty:
-        #             net_income = income_stmt.loc["Net Income"][latest_date]
-        #             metrics.return_on_equity = (
-        #                 net_income / total_equity if total_equity else None
-        #             )
-        #             metrics.return_on_assets = (
-        #                 net_income / total_assets if total_assets else None
-        #             )
-        # except Exception as e:
-        #     print(f"Could not compute all metrics for {symbol}: {e}")
-
         return metrics
 
     except Exception as e:
@@ -113,17 +72,6 @@ def get_alpha_vantage_metrics(symbol: str) -> Optional[KeyMetrics]:
     if not ALPHA_VANTAGE_API_KEY:
         print("Warning: ALPHA_VANTAGE_API_KEY not set. Cannot fetch metrics.")
         return {}
-
-    # cache_file = os.path.join(
-    #     CACHE_DIRECTORY, "financial_metrics", f"{symbol}_alphavantage.json"
-    # )
-
-    # Try to get from cache if less than a day old
-    # if os.path.exists(cache_file):
-    #     file_modified_time = datetime.fromtimestamp(os.path.getmtime(cache_file))
-    #     if datetime.now() - file_modified_time < timedelta(days=1):
-    #         with open(cache_file, "r") as f:
-    #             return KeyMetrics(**json.load(f))
 
     try:
         # Respect rate limits
@@ -156,10 +104,6 @@ def get_alpha_vantage_metrics(symbol: str) -> Optional[KeyMetrics]:
             current_ratio=data.get("CurrentRatio"),
             quick_ratio=data.get("QuickRatio"),
         )
-
-        # Cache the results
-        # with open(cache_file, "w") as f:
-        #     json.dump(asdict(data), f, indent=4)
 
         return data
 

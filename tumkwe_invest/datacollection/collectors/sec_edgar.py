@@ -1,5 +1,7 @@
 """
 Collector for SEC EDGAR filings.
+
+=> @TODO Not working : to_delete
 """
 
 import json

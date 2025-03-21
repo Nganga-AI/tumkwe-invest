@@ -4,7 +4,7 @@ Collector for company news articles from Yahoo Finance.
 
 from datetime import datetime
 from typing import List, Union
-import json
+
 import yfinance as yf
 
 from ..models import NewsArticle
@@ -38,7 +38,6 @@ def get_yahoo_finance_news(
                     "content"
                 ]
                 # Convert timestamp to datetime
-                # pub_date = datetime.fromisoformat(article_data.get("pubDate", 0))
                 pub_date = datetime.strptime(
                     article_data.get(
                         "pubDate", datetime.now().strftime("%Y-%m-%dT%H:%M:%SZ")
