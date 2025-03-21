@@ -31,3 +31,5 @@ langchain-anthropic
 langchain-groq
 langchain-openai
 langchain-ollama
+
+lxml[html_clean]
