@@ -13,9 +13,14 @@ import yfinance as yf
 
 from ..config import ALPHA_VANTAGE_API_KEY, CACHE_DIRECTORY
 from ..models import FinancialStatement, KeyMetrics
+from dataclasses import asdict
 
 # Create cache directory
 os.makedirs(os.path.join(CACHE_DIRECTORY, "financial_metrics"), exist_ok=True)
+
+
+def parse_float(value: Any) -> Optional[float]:
+    return float(value) if value is not None else None
 
 
 def get_key_metrics_yf(symbol: str) -> Optional[KeyMetrics]:
@@ -43,45 +48,50 @@ def get_key_metrics_yf(symbol: str) -> Optional[KeyMetrics]:
             eps=info.get("trailingEps"),
             market_cap=info.get("marketCap"),
             profit_margin=info.get("profitMargins"),
+            debt_to_equity=info.get("debtToEquity"),
+            return_on_equity=info.get("returnOnEquity"),
+            return_on_assets=info.get("returnOnAssets"),
+            current_ratio=info.get("currentRatio"),
+            quick_ratio=info.get("quickRatio"),
         )
 
         # Try to get additional metrics from financial data
-        try:
-            balance_sheet = ticker.balance_sheet
-            if not balance_sheet.empty:
-                latest_date = balance_sheet.columns[0]
-                total_assets = balance_sheet.loc["Total Assets"][latest_date]
-                total_liabilities = balance_sheet.loc[
-                    "Total Liabilities Net Minority Interest"
-                ][latest_date]
-                total_equity = balance_sheet.loc["Total Equity"][latest_date]
-                current_assets = balance_sheet.loc["Current Assets"][latest_date]
-                current_liabilities = balance_sheet.loc["Current Liabilities"][
-                    latest_date
-                ]
+        # try:
+        #     balance_sheet = ticker.balance_sheet
+        #     if not balance_sheet.empty:
+        #         latest_date = balance_sheet.columns[0]
+        #         total_assets = balance_sheet.loc["Total Assets"][latest_date]
+        #         total_liabilities = balance_sheet.loc[
+        #             "Total Liabilities Net Minority Interest"
+        #         ][latest_date]
+        #         total_equity = balance_sheet.loc["Total Equity"][latest_date]
+        #         current_assets = balance_sheet.loc["Current Assets"][latest_date]
+        #         current_liabilities = balance_sheet.loc["Current Liabilities"][
+        #             latest_date
+        #         ]
 
-                # Calculate additional ratios
-                metrics.debt_to_equity = (
-                    total_liabilities / total_equity if total_equity else None
-                )
-                metrics.current_ratio = (
-                    current_assets / current_liabilities
-                    if current_liabilities
-                    else None
-                )
+        #         # Calculate additional ratios
+        #         metrics.debt_to_equity = (
+        #             total_liabilities / total_equity if total_equity else None
+        #         )
+        #         metrics.current_ratio = (
+        #             current_assets / current_liabilities
+        #             if current_liabilities
+        #             else None
+        #         )
 
-                # Get income statement for ROE and ROA
-                income_stmt = ticker.income_stmt
-                if not income_stmt.empty:
-                    net_income = income_stmt.loc["Net Income"][latest_date]
-                    metrics.return_on_equity = (
-                        net_income / total_equity if total_equity else None
-                    )
-                    metrics.return_on_assets = (
-                        net_income / total_assets if total_assets else None
-                    )
-        except Exception as e:
-            print(f"Could not compute all metrics for {symbol}: {e}")
+        #         # Get income statement for ROE and ROA
+        #         income_stmt = ticker.income_stmt
+        #         if not income_stmt.empty:
+        #             net_income = income_stmt.loc["Net Income"][latest_date]
+        #             metrics.return_on_equity = (
+        #                 net_income / total_equity if total_equity else None
+        #             )
+        #             metrics.return_on_assets = (
+        #                 net_income / total_assets if total_assets else None
+        #             )
+        # except Exception as e:
+        #     print(f"Could not compute all metrics for {symbol}: {e}")
 
         return metrics
 
@@ -90,7 +100,7 @@ def get_key_metrics_yf(symbol: str) -> Optional[KeyMetrics]:
         return None
 
 
-def get_alpha_vantage_metrics(symbol: str) -> Dict[str, Any]:
+def get_alpha_vantage_metrics(symbol: str) -> Optional[KeyMetrics]:
     """
     Get fundamental metrics from Alpha Vantage.
 
@@ -104,20 +114,20 @@ def get_alpha_vantage_metrics(symbol: str) -> Dict[str, Any]:
         print("Warning: ALPHA_VANTAGE_API_KEY not set. Cannot fetch metrics.")
         return {}
 
-    cache_file = os.path.join(
-        CACHE_DIRECTORY, "financial_metrics", f"{symbol}_alphavantage.json"
-    )
+    # cache_file = os.path.join(
+    #     CACHE_DIRECTORY, "financial_metrics", f"{symbol}_alphavantage.json"
+    # )
 
     # Try to get from cache if less than a day old
-    if os.path.exists(cache_file):
-        file_modified_time = datetime.fromtimestamp(os.path.getmtime(cache_file))
-        if datetime.now() - file_modified_time < timedelta(days=1):
-            with open(cache_file, "r") as f:
-                return json.load(f)
+    # if os.path.exists(cache_file):
+    #     file_modified_time = datetime.fromtimestamp(os.path.getmtime(cache_file))
+    #     if datetime.now() - file_modified_time < timedelta(days=1):
+    #         with open(cache_file, "r") as f:
+    #             return KeyMetrics(**json.load(f))
 
     try:
         # Respect rate limits
-        time.sleep(12)  # Alpha Vantage free tier allows 5 calls per minute
+        # time.sleep(12)  # Alpha Vantage free tier allows 5 calls per minute
 
         url = "https://www.alphavantage.co/query"
         params = {
@@ -128,11 +138,28 @@ def get_alpha_vantage_metrics(symbol: str) -> Dict[str, Any]:
 
         response = requests.get(url, params=params)
         response.raise_for_status()
-        data = response.json()
+        data: dict = response.json()
+
+        data = KeyMetrics(
+            symbol=symbol,
+            source="alpha_vantage",
+            date=datetime.now(),
+            pe_ratio=data.get("PERatio"),
+            pb_ratio=data.get("PriceToBookRatio"),
+            dividend_yield=data.get("DividendYield"),
+            eps=data.get("EPS"),
+            profit_margin=data.get("ProfitMargin"),
+            market_cap=data.get("MarketCapitalization"),
+            debt_to_equity=data.get("DebtToEquity"),
+            return_on_equity=data.get("ReturnOnEquityTTM"),
+            return_on_assets=data.get("ReturnOnAssetsTTM"),
+            current_ratio=data.get("CurrentRatio"),
+            quick_ratio=data.get("QuickRatio"),
+        )
 
         # Cache the results
-        with open(cache_file, "w") as f:
-            json.dump(data, f, indent=4)
+        # with open(cache_file, "w") as f:
+        #     json.dump(asdict(data), f, indent=4)
 
         return data
 
@@ -152,49 +179,26 @@ def get_comprehensive_metrics(symbol: str) -> Optional[KeyMetrics]:
         KeyMetrics object or None if data not available
     """
     # Start with Yahoo Finance metrics
-    metrics = get_key_metrics_yf(symbol)
+    yf_data = get_key_metrics_yf(symbol)
+    av_data = get_alpha_vantage_metrics(symbol)
 
-    if not metrics:
-        metrics = KeyMetrics(symbol=symbol, source="combined", date=datetime.now())
-    else:
-        metrics.source = "combined"
-
-    # Add Alpha Vantage data if available
-    try:
-        av_data = get_alpha_vantage_metrics(symbol)
-
-        if av_data:
-            # Update metrics with Alpha Vantage data if previously None
-            if metrics.pe_ratio is None:
-                metrics.pe_ratio = float(av_data.get("PERatio", "0")) or None
-
-            if metrics.pb_ratio is None:
-                metrics.pb_ratio = float(av_data.get("PriceToBookRatio", "0")) or None
-
-            if metrics.eps is None:
-                metrics.eps = float(av_data.get("EPS", "0")) or None
-
-            if metrics.profit_margin is None:
-                metrics.profit_margin = float(av_data.get("ProfitMargin", "0")) or None
-
-            # Add any missing metrics
-            if metrics.dividend_yield is None and "DividendYield" in av_data:
-                metrics.dividend_yield = (
-                    float(av_data.get("DividendYield", "0")) or None
-                )
-
-            if metrics.return_on_equity is None and "ReturnOnEquityTTM" in av_data:
-                metrics.return_on_equity = (
-                    float(av_data.get("ReturnOnEquityTTM", "0")) or None
-                )
-
-            if metrics.return_on_assets is None and "ReturnOnAssetsTTM" in av_data:
-                metrics.return_on_assets = (
-                    float(av_data.get("ReturnOnAssetsTTM", "0")) or None
-                )
-
-    except Exception as e:
-        print(f"Error combining Alpha Vantage metrics for {symbol}: {e}")
+    # combine data
+    metrics = KeyMetrics(
+        symbol=symbol,
+        source="combined",
+        date=datetime.now(),
+        pe_ratio=yf_data.pe_ratio or av_data.pe_ratio,
+        pb_ratio=yf_data.pb_ratio or av_data.pb_ratio,
+        dividend_yield=yf_data.dividend_yield or av_data.dividend_yield,
+        eps=yf_data.eps or av_data.eps,
+        market_cap=yf_data.market_cap or av_data.market_cap,
+        profit_margin=yf_data.profit_margin or av_data.profit_margin,
+        debt_to_equity=yf_data.debt_to_equity or av_data.debt_to_equity,
+        return_on_equity=yf_data.return_on_equity or av_data.return_on_equity,
+        return_on_assets=yf_data.return_on_assets or av_data.return_on_assets,
+        current_ratio=yf_data.current_ratio or av_data.current_ratio,
+        quick_ratio=yf_data.quick_ratio or av_data.quick_ratio,
+    )
 
     return metrics
 

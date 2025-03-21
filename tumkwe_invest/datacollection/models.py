@@ -101,6 +101,28 @@ class KeyMetrics(FinancialData):
     current_ratio: Optional[float] = None
     quick_ratio: Optional[float] = None
 
+    def __post_init__(self):
+        float_fields = [
+            "pe_ratio",
+            "pb_ratio",
+            "dividend_yield",
+            "eps",
+            "market_cap",
+            "debt_to_equity",
+            "return_on_equity",
+            "return_on_assets",
+            "profit_margin",
+            "current_ratio",
+            "quick_ratio",
+        ]
+        for field_name in float_fields:
+            value = getattr(self, field_name)
+            if isinstance(value, str):
+                try:
+                    setattr(self, field_name, float(value))
+                except ValueError:
+                    setattr(self, field_name, None)
+
 
 @dataclass
 class NewsArticle:

@@ -2,19 +2,24 @@
 Collector for company news articles.
 """
 
+import json
 import time
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import List
 
 import requests
-from newspaper import Article
+
+# from newspaper import Article
 
 from ..config import NEWS_API_KEY
 from ..models import NewsArticle
 
 
 def get_company_news(
-    company_symbol: str, company_name: str, days: int = 30
+    company_symbol: str = None,
+    company_name: str = None,
+    days: int = 5,
+    max_articles: int = 25,
 ) -> List[NewsArticle]:
     """
     Get news articles about a specific company.
@@ -23,6 +28,7 @@ def get_company_news(
         company_symbol: Stock ticker symbol
         company_name: Company name for search
         days: Number of days to look back
+        max_articles: Maximum number of articles to retrieve
 
     Returns:
         List of NewsArticle objects
@@ -30,16 +36,22 @@ def get_company_news(
     if not NEWS_API_KEY:
         print("Warning: NEWS_API_KEY not set. Cannot fetch news.")
         return []
+    
+    if not company_symbol and not company_name:
+        raise ValueError("Must provide company_symbol or company_name")
 
     articles = []
     try:
         url = "https://newsapi.org/v2/everything"
         params = {
-            "q": f"{company_name} OR {company_symbol}",
+            "q": str(company_name or company_symbol),
             "language": "en",
-            "sortBy": "publishedAt",
-            "pageSize": 25,
+            # "sortBy": "publishedAt",
+            "sortBy": "popularity",
+            "pageSize": max_articles,
             "apiKey": NEWS_API_KEY,
+            "from": (datetime.now() - timedelta(days=days)).strftime("%Y-%m-%d"),
+            "to": datetime.now().strftime("%Y-%m-%d"),
         }
 
         response = requests.get(url, params=params)
@@ -61,13 +73,13 @@ def get_company_news(
                 )
 
                 # Try to fetch full content (may not always work due to site restrictions)
-                try:
-                    full_article = Article(article.get("url"))
-                    full_article.download()
-                    full_article.parse()
-                    news.content = full_article.text
-                except Exception:
-                    pass
+                # try:
+                #     full_article = Article(article.get("url"))
+                #     full_article.download()
+                #     full_article.parse()
+                #     news.content = full_article.text
+                # except Exception:
+                #     pass
 
                 articles.append(news)
             except Exception as e:
