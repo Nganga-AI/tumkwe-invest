@@ -1,90 +1,90 @@
-# Architecture du système de collecte de données
+# Data Collection System Architecture
 
-Ce document décrit l'architecture du système de collecte de données financières de Tumkwe Invest.
+This document describes the architecture of Tumkwe Invest's financial data collection system.
 
-## Vue d'ensemble
+## Overview
 
-Le système est conçu pour collecter, valider et stocker des données financières provenant de diverses sources. Ces données seront utilisées ultérieurement pour l'analyse et la génération de conseils d'investissement.
+The system is designed to collect, validate, and store financial data from various sources. This data will be used later for analysis and to generate investment advice.
 
 ```
 +-------------------+     +-------------------+     +-------------------+
 |                   |     |                   |     |                   |
-|  Sources externes |     |  Collecteurs de   |     |  Stockage local   |
-|  (APIs, Web)      | --> |  données          | --> |  (Fichiers JSON,  |
+|  External Sources |     |  Data             |     |  Local Storage    |
+|  (APIs, Web)      | --> |  Collectors       | --> |  (JSON Files,     |
 |                   |     |                   |     |   CSV)            |
 +-------------------+     +-------------------+     +-------------------+
                                    |
                                    v
                           +-------------------+
                           |                   |
-                          |  Validation des   |
-                          |  données          |
+                          |  Data             |
+                          |  Validation       |
                           |                   |
                           +-------------------+
 ```
 
-## Composants principaux
+## Main Components
 
-### 1. Modèles de données (models.py)
+### 1. Data Models (models.py)
 
-Définit les structures de données pour stocker les différents types d'informations financières:
+Defines the data structures to store different types of financial information:
 
-- `StockPrice`: Prix d'actions historiques
-- `FinancialStatement`: États financiers (compte de résultat, bilan, flux de trésorerie)
-- `CompanyProfile`: Informations sur l'entreprise
-- `KeyMetrics`: Indicateurs financiers clés
-- `NewsArticle`: Articles de presse et actualités
-- `SECFiling`: Documents déposés auprès de la SEC
+- `StockPrice`: Historical stock prices
+- `FinancialStatement`: Financial statements (income statement, balance sheet, cash flow)
+- `CompanyProfile`: Company information
+- `KeyMetrics`: Key financial indicators
+- `NewsArticle`: Press articles and news
+- `SECFiling`: Documents filed with the SEC
 
-### 2. Collecteurs spécialisés
+### 2. Specialized Collectors
 
-Modules qui se connectent à différentes sources de données:
+Modules that connect to different data sources:
 
-- `yahoo_finance.py`: Collecte des prix d'actions et états financiers via Yahoo Finance
-- `sec_edgar.py`: Collecte des documents officiels auprès de la SEC
-- `yahoo_news.py`: Collecte des actualités via Yahoo Finance
-- `news_collector.py`: Collecte des actualités via News API
-- `financial_metrics.py`: Collecte des indicateurs financiers avancés
+- `yahoo_finance.py`: Collects stock prices and financial statements via Yahoo Finance
+- `sec_edgar.py`: Collects official documents from the SEC
+- `yahoo_news.py`: Collects news via Yahoo Finance
+- `news_collector.py`: Collects news via News API
+- `financial_metrics.py`: Collects advanced financial indicators
 
-### 3. Validation des données (validation.py)
+### 3. Data Validation (validation.py)
 
-Vérifie la qualité et la cohérence des données:
+Checks the quality and consistency of data:
 
-- Détection des valeurs aberrantes dans les prix d'actions
-- Vérification de la cohérence des états financiers
-- Validation des dates et des périodes
-- Vérification de l'exhaustivité des données
+- Detection of outliers in stock prices
+- Verification of financial statement consistency
+- Validation of dates and periods
+- Verification of data completeness
 
-### 4. Gestionnaire de collecte (collector_manager.py)
+### 4. Collection Manager (collector_manager.py)
 
-Coordonne le processus de collecte:
+Coordinates the collection process:
 
-- Planifie les tâches de collecte selon différentes fréquences
-- Gère les mises à jour automatiques
-- Stocke les données de manière cohérente
-- Fournit des rapports de validation
+- Schedules collection tasks at different frequencies
+- Manages automatic updates
+- Stores data consistently
+- Provides validation reports
 
-## Flux de travail typique
+## Typical Workflow
 
-1. L'utilisateur spécifie les symboles d'actions à surveiller
-2. Le gestionnaire de collecte crée des tâches pour chaque type de données
-3. Les collecteurs spécialisés récupèrent les données auprès des différentes sources
-4. Les données sont validées pour détecter les problèmes potentiels
-5. Les données validées sont stockées localement dans un format standardisé
-6. Les mises à jour sont programmées selon la fréquence appropriée
+1. The user specifies stock symbols to monitor
+2. The collection manager creates tasks for each data type
+3. Specialized collectors retrieve data from different sources
+4. The data is validated to detect potential issues
+5. Validated data is stored locally in a standardized format
+6. Updates are scheduled according to the appropriate frequency
 
-## Contraintes et optimisations
+## Constraints and Optimizations
 
-- **Limites d'API**: Le système respecte les limites de requêtes des APIs gratuites
-- **Mise en cache**: Les données sont mises en cache pour réduire les appels aux APIs
-- **Tolérance aux erreurs**: Les erreurs de collecte sont consignées et n'arrêtent pas le processus
-- **Validation automatique**: Les problèmes de qualité de données sont détectés et signalés
+- **API Limits**: The system respects the request limits of free APIs
+- **Caching**: Data is cached to reduce API calls
+- **Error Tolerance**: Collection errors are logged and don't stop the process
+- **Automatic Validation**: Data quality issues are detected and reported
 
-## Extension du système
+## System Extension
 
-Pour ajouter une nouvelle source de données:
+To add a new data source:
 
-1. Créer un nouveau collecteur dans le dossier `collectors/`
-2. Adapter les données collectées aux modèles existants
-3. Ajouter des règles de validation spécifiques si nécessaire
-4. Intégrer le nouveau collecteur dans le gestionnaire de collecte
+1. Create a new collector in the `collectors/` folder
+2. Adapt the collected data to existing models
+3. Add specific validation rules if necessary
+4. Integrate the new collector into the collection manager

@@ -239,24 +239,30 @@ class StockDashboard(Dashboard):
                 components = [{"type": "chart", "config": tech_chart}]
 
                 # Add detailed technical cards for advanced users
-                for indicator_name, values in self.technical_indicators.items():
-                    if not values:
+                for indicator_name, all_values in self.technical_indicators.items():
+                    if not all_values:
                         continue
 
-                    current_value = values[-1]
-                    prev_value = values[-2] if len(values) > 1 else current_value
-                    change = current_value - prev_value
+                    if isinstance(all_values, list):
+                        all_values = {"": all_values}
+                    for sub_indic, values in all_values.items():
+                        current_value = values[-1]
+                        prev_value = values[-2] if len(values) > 1 else current_value
+                        change = current_value - prev_value
 
-                    card = InsightCard(
-                        title=indicator_name.upper(),
-                        value=f"{current_value:.2f}",
-                        interpretation=self._get_indicator_interpretation(
-                            indicator_name, current_value
-                        ),
-                        trend=f"{change:+.2f}",
-                        trend_direction="up" if change >= 0 else "down",
-                    )
-                    components.append({"type": "card", "config": card.to_dict()})
+                        card = InsightCard(
+                            title=indicator_name.upper()
+                            + ("-" + str(sub_indic) if sub_indic else ""),
+                            value=f"{current_value:.2f}",
+                            interpretation=self._get_indicator_interpretation(
+                                indicator_name
+                                + ("-" + str(sub_indic) if sub_indic else ""),
+                                current_value,
+                            ),
+                            trend=f"{change:+.2f}",
+                            trend_direction="up" if change >= 0 else "down",
+                        )
+                        components.append({"type": "card", "config": card.to_dict()})
 
         self.add_section("technical", "Technical Analysis", components)
 

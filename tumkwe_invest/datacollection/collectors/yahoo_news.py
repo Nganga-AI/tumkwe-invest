@@ -3,7 +3,7 @@ Collector for company news articles from Yahoo Finance.
 """
 
 from datetime import datetime
-from typing import List
+from typing import List, Union
 
 import yfinance as yf
 
@@ -34,18 +34,26 @@ def get_yahoo_finance_news(
         # Process each news article (up to max_articles)
         for article_data in news_data[:max_articles]:
             try:
+                article_data: dict[str, Union[str, dict, bool]] = article_data[
+                    "content"
+                ]
                 # Convert timestamp to datetime
-                pub_date = datetime.fromtimestamp(
-                    article_data.get("providerPublishTime", 0)
+                pub_date = datetime.strptime(
+                    article_data.get(
+                        "pubDate", datetime.now().strftime("%Y-%m-%dT%H:%M:%SZ")
+                    ),
+                    "%Y-%m-%dT%H:%M:%SZ",
                 )
 
                 # Create NewsArticle object
                 news = NewsArticle(
                     company_symbol=company_symbol,
                     title=article_data.get("title", ""),
-                    publication=article_data.get("publisher", "Yahoo Finance"),
+                    publication=article_data.get("provider", {}).get(
+                        "displayName", "Yahoo Finance"
+                    ),
                     date=pub_date,
-                    url=article_data.get("link", ""),
+                    url=article_data.get("clickThroughUrl", {}).get("url", ""),
                     summary=article_data.get("summary", ""),
                 )
 

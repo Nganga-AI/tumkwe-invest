@@ -23,13 +23,13 @@ class FinancialData:
 class StockPrice(FinancialData):
     """Stock price information"""
 
-    date: datetime = field(default_factory=datetime.now)
-    open: float = field()
-    high: float = field()
-    low: float = field()
-    close: float = field()
-    volume: int = field()
+    open: float = field(default=0.0)
+    high: float = field(default=0.0)
+    low: float = field(default=0.0)
+    close: float = field(default=0.0)
+    volume: int = field(default=0.0)
     adjusted_close: Optional[float] = None
+    date: datetime = field(default_factory=datetime.now)
 
 
 class StatementType(Enum):
@@ -54,10 +54,12 @@ class Period(Enum):
 class FinancialStatement(FinancialData):
     """Financial statement data"""
 
-    statement_type: str = field()  # income_statement, balance_sheet, cash_flow
-    period: str = field()  # annual, quarterly
+    statement_type: str = field(
+        default=""
+    )  # income_statement, balance_sheet, cash_flow
+    period: str = field(default="")  # annual, quarterly
     date: datetime = field(default_factory=datetime.now)
-    data: Dict[str, float] = field()
+    data: Dict[str, float] = field(default_factory=dict)
     currency: str = "USD"
     fiscal_year: Optional[int] = None
     fiscal_quarter: Optional[int] = None
@@ -67,10 +69,10 @@ class FinancialStatement(FinancialData):
 class CompanyProfile(FinancialData):
     """Company profile information"""
 
-    name: str = field()
-    sector: str = field()
-    industry: str = field()
-    description: str = field()
+    name: str = field(default="")
+    sector: str = field(default="")
+    industry: str = field(default="")
+    description: str = field(default="")
     website: Optional[str] = None
     employees: Optional[int] = None
     country: Optional[str] = None
@@ -98,6 +100,28 @@ class KeyMetrics(FinancialData):
     profit_margin: Optional[float] = None
     current_ratio: Optional[float] = None
     quick_ratio: Optional[float] = None
+
+    def __post_init__(self):
+        float_fields = [
+            "pe_ratio",
+            "pb_ratio",
+            "dividend_yield",
+            "eps",
+            "market_cap",
+            "debt_to_equity",
+            "return_on_equity",
+            "return_on_assets",
+            "profit_margin",
+            "current_ratio",
+            "quick_ratio",
+        ]
+        for field_name in float_fields:
+            value = getattr(self, field_name)
+            if isinstance(value, str):
+                try:
+                    setattr(self, field_name, float(value))
+                except ValueError:
+                    setattr(self, field_name, None)
 
 
 @dataclass
