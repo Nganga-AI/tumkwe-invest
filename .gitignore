@@ -171,3 +171,4 @@ cython_debug/
 .pypirc
 
 tumkwe_invest/data_cache
+data
