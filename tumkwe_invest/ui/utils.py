@@ -336,7 +336,7 @@ class AccessibilityUtils:
         Generate ARIA labels for a component.
 
         Args:
-            component_type: Type of component
+            component_type: Type of component, either 'chart', 'metric', 'button', or 'toggle'
             data: Component data
 
         Returns:
