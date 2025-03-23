@@ -4,7 +4,9 @@ Tests for Yahoo Finance data collector.
 
 import datetime
 import unittest
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock, PropertyMock, patch
+
+import pandas as pd
 
 from tumkwe_invest.datacollection.collectors.yahoo_finance import (
     get_company_profile,
@@ -99,13 +101,15 @@ class TestYahooFinance(unittest.TestCase):
             self.assertEqual(result.source, "yahoo_finance")
 
     def test_get_company_profile_error(self):
-        # Setup mock to raise exception
-        with patch("yfinance.Ticker") as mock:
+        # Setup mock to raise an exception when accessing a dictionary key
+        with patch("yfinance.Ticker") as mock_ticker:
             ticker_instance = MagicMock()
-            mock.return_value = ticker_instance
+            mock_ticker.return_value = ticker_instance
 
-            ticker_instance.info = {}
-            ticker_instance.info.__getitem__.side_effect = Exception("API Error")
+            # Mock `info` as a property that raises an exception
+            type(ticker_instance).info = PropertyMock(
+                side_effect=Exception("API Error")
+            )
 
             # Call function
             result = get_company_profile("AAPL")
@@ -114,49 +118,31 @@ class TestYahooFinance(unittest.TestCase):
             self.assertIsNone(result)
 
     def test_get_financial_statements(self):
-        # Create mock date and ticker
-        with patch("yfinance.Ticker") as mock:
+        # Mock the Ticker object
+        with patch("yfinance.Ticker") as mock_ticker:
             ticker_instance = MagicMock()
-            mock.return_value = ticker_instance
+            mock_ticker.return_value = ticker_instance
 
-            mock_date = datetime.datetime(2022, 12, 31)
+            # Mock financial statement data
+            mock_date = "2022-12-31"  # Ensure it's a string, as used in `columns`
 
-            # Create mock data for income statement
-            income_data = MagicMock()
-            income_data.columns = [mock_date]
-            income_data[mock_date] = MagicMock()
-            income_data.index = ["Revenue", "CostOfRevenue", "GrossProfit"]
-            income_data[mock_date]["Revenue"] = 100000000
-            income_data[mock_date]["CostOfRevenue"] = 50000000
-            income_data[mock_date]["GrossProfit"] = 50000000
+            # Create pandas DataFrames to simulate Yahoo Finance data structure
+            income_data = pd.DataFrame(
+                {mock_date: [100000000, 50000000, 50000000]},
+                index=["Revenue", "CostOfRevenue", "GrossProfit"],
+            )
             ticker_instance.income_stmt = income_data
 
-            # Create mock data for balance sheet
-            balance_data = MagicMock()
-            balance_data.columns = [mock_date]
-            balance_data[mock_date] = MagicMock()
-            balance_data.index = [
-                "TotalAssets",
-                "TotalLiabilities",
-                "StockholdersEquity",
-            ]
-            balance_data[mock_date]["TotalAssets"] = 200000000
-            balance_data[mock_date]["TotalLiabilities"] = 100000000
-            balance_data[mock_date]["StockholdersEquity"] = 100000000
+            balance_data = pd.DataFrame(
+                {mock_date: [200000000, 100000000, 100000000]},
+                index=["TotalAssets", "TotalLiabilities", "StockholdersEquity"],
+            )
             ticker_instance.balance_sheet = balance_data
 
-            # Create mock data for cash flow
-            cashflow_data = MagicMock()
-            cashflow_data.columns = [mock_date]
-            cashflow_data[mock_date] = MagicMock()
-            cashflow_data.index = [
-                "OperatingCashFlow",
-                "InvestingCashFlow",
-                "FinancingCashFlow",
-            ]
-            cashflow_data[mock_date]["OperatingCashFlow"] = 30000000
-            cashflow_data[mock_date]["InvestingCashFlow"] = -10000000
-            cashflow_data[mock_date]["FinancingCashFlow"] = -5000000
+            cashflow_data = pd.DataFrame(
+                {mock_date: [30000000, -10000000, -5000000]},
+                index=["OperatingCashFlow", "InvestingCashFlow", "FinancingCashFlow"],
+            )
             ticker_instance.cashflow = cashflow_data
 
             # Call function
@@ -168,6 +154,7 @@ class TestYahooFinance(unittest.TestCase):
             self.assertIn("balance_sheet", result)
             self.assertIn("cash_flow", result)
 
+            # Verify income statement
             self.assertEqual(len(result["income_statement"]), 1)
             self.assertEqual(result["income_statement"][0].symbol, "AAPL")
             self.assertEqual(
@@ -177,9 +164,11 @@ class TestYahooFinance(unittest.TestCase):
             self.assertEqual(result["income_statement"][0].date, mock_date)
             self.assertEqual(result["income_statement"][0].data["Revenue"], 100000000)
 
+            # Verify balance sheet
             self.assertEqual(len(result["balance_sheet"]), 1)
             self.assertEqual(result["balance_sheet"][0].data["TotalAssets"], 200000000)
 
+            # Verify cash flow statement
             self.assertEqual(len(result["cash_flow"]), 1)
             self.assertEqual(result["cash_flow"][0].data["OperatingCashFlow"], 30000000)
 

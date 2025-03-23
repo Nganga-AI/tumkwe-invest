@@ -5,7 +5,9 @@ Tests for financial metrics collectors.
 import datetime
 import os
 import unittest
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock, PropertyMock, patch
+
+import pandas as pd
 
 from tumkwe_invest.datacollection.collectors.financial_metrics import (
     get_alpha_vantage_metrics,
@@ -74,7 +76,9 @@ class TestFinancialMetrics(unittest.TestCase):
             ticker_instance = MagicMock()
             mock.return_value = ticker_instance
 
-            ticker_instance.info.__getitem__.side_effect = Exception("API Error")
+            type(ticker_instance).info = PropertyMock(
+                side_effect=Exception("API Error")
+            )
 
             # Call function
             result = get_key_metrics_yf("AAPL")
@@ -115,17 +119,17 @@ class TestFinancialMetrics(unittest.TestCase):
             self.assertEqual(result.source, "alpha_vantage")
             self.assertIsInstance(result.date, datetime.datetime)
             # Alpha Vantage values are stored as strings, but KeyMetrics should convert them
-            self.assertEqual(result.pe_ratio, "25.6")
-            self.assertEqual(result.pb_ratio, "12.3")
-            self.assertEqual(result.dividend_yield, "1.5")
-            self.assertEqual(result.eps, "5.61")
-            self.assertEqual(result.profit_margin, "0.25")
-            self.assertEqual(result.market_cap, "2500000000000")
-            self.assertEqual(result.debt_to_equity, "1.5")
-            self.assertEqual(result.return_on_equity, "0.35")
-            self.assertEqual(result.return_on_assets, "0.15")
-            self.assertEqual(result.current_ratio, "1.8")
-            self.assertEqual(result.quick_ratio, "1.5")
+            self.assertEqual(result.pe_ratio, 25.6)
+            self.assertEqual(result.pb_ratio, 12.3)
+            self.assertEqual(result.dividend_yield, 1.5)
+            self.assertEqual(result.eps, 5.61)
+            self.assertEqual(result.profit_margin, 0.25)
+            self.assertEqual(result.market_cap, 2500000000000)
+            self.assertEqual(result.debt_to_equity, 1.5)
+            self.assertEqual(result.return_on_equity, 0.35)
+            self.assertEqual(result.return_on_assets, 0.15)
+            self.assertEqual(result.current_ratio, 1.8)
+            self.assertEqual(result.quick_ratio, 1.5)
 
             # Check API call parameters
             mock_get.assert_called_once()
@@ -211,8 +215,8 @@ class TestFinancialMetrics(unittest.TestCase):
                 self.assertEqual(result.quick_ratio, 1.5)
 
                 # Should fall back to Alpha Vantage for missing YF values
-                self.assertEqual(result.dividend_yield, "1.5")
-                self.assertEqual(result.debt_to_equity, "1.6")
+                self.assertEqual(result.dividend_yield, 1.5)
+                self.assertEqual(result.debt_to_equity, 1.6)
 
     def test_get_quarterly_financial_data(self):
         # Create mock date
@@ -222,38 +226,40 @@ class TestFinancialMetrics(unittest.TestCase):
             ticker_instance = MagicMock()
             mock.return_value = ticker_instance
 
-            # Create mock quarterly income statement
-            income_stmt_q = MagicMock()
-            income_stmt_q.columns = [mock_date]
-            income_stmt_q[mock_date] = MagicMock()
-            income_stmt_q.index = ["Revenue", "CostOfRevenue", "GrossProfit"]
-            income_stmt_q[mock_date]["Revenue"] = 97000000000
-            income_stmt_q[mock_date]["CostOfRevenue"] = 50000000000
-            income_stmt_q[mock_date]["GrossProfit"] = 47000000000
+            # Mock quarterly income statement as a pandas DataFrame
+            income_stmt_q = pd.DataFrame(
+                {
+                    mock_date: {
+                        "Revenue": 97000000000,
+                        "CostOfRevenue": 50000000000,
+                        "GrossProfit": 47000000000,
+                    }
+                }
+            )
             ticker_instance.quarterly_income_stmt = income_stmt_q
 
-            # Create mock quarterly balance sheet
-            balance_q = MagicMock()
-            balance_q.columns = [mock_date]
-            balance_q[mock_date] = MagicMock()
-            balance_q.index = ["TotalAssets", "TotalLiabilities", "StockholdersEquity"]
-            balance_q[mock_date]["TotalAssets"] = 350000000000
-            balance_q[mock_date]["TotalLiabilities"] = 240000000000
-            balance_q[mock_date]["StockholdersEquity"] = 110000000000
+            # Mock quarterly balance sheet as a pandas DataFrame
+            balance_q = pd.DataFrame(
+                {
+                    mock_date: {
+                        "TotalAssets": 350000000000,
+                        "TotalLiabilities": 240000000000,
+                        "StockholdersEquity": 110000000000,
+                    }
+                }
+            )
             ticker_instance.quarterly_balance_sheet = balance_q
 
-            # Create mock quarterly cash flow
-            cash_flow_q = MagicMock()
-            cash_flow_q.columns = [mock_date]
-            cash_flow_q[mock_date] = MagicMock()
-            cash_flow_q.index = [
-                "OperatingCashFlow",
-                "InvestingCashFlow",
-                "FinancingCashFlow",
-            ]
-            cash_flow_q[mock_date]["OperatingCashFlow"] = 28000000000
-            cash_flow_q[mock_date]["InvestingCashFlow"] = -8000000000
-            cash_flow_q[mock_date]["FinancingCashFlow"] = -20000000000
+            # Mock quarterly cash flow as a pandas DataFrame
+            cash_flow_q = pd.DataFrame(
+                {
+                    mock_date: {
+                        "OperatingCashFlow": 28000000000,
+                        "InvestingCashFlow": -8000000000,
+                        "FinancingCashFlow": -20000000000,
+                    }
+                }
+            )
             ticker_instance.quarterly_cashflow = cash_flow_q
 
             # Call function
