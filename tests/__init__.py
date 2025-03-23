@@ -1,3 +1,3 @@
 """
-Test suite for Tumkwe Invest package.
+Test package for Tumkwe Invest.
 """
