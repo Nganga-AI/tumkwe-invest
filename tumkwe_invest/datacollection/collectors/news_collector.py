@@ -2,13 +2,13 @@
 Collector for company news articles.
 """
 
+import os
 import time
 from datetime import datetime, timedelta
 from typing import List
 
 import requests
 
-from ..config import NEWS_API_KEY
 from ..models import NewsArticle
 
 
@@ -30,7 +30,7 @@ def get_company_news(
     Returns:
         List of NewsArticle objects
     """
-    if not NEWS_API_KEY:
+    if not os.getenv("NEWS_API_KEY"):
         print("Warning: NEWS_API_KEY not set. Cannot fetch news.")
         return []
 
@@ -46,7 +46,7 @@ def get_company_news(
             # "sortBy": "publishedAt",
             "sortBy": "popularity",
             "pageSize": max_articles,
-            "apiKey": NEWS_API_KEY,
+            "apiKey": os.getenv("NEWS_API_KEY"),
             "from": (datetime.now() - timedelta(days=days)).strftime("%Y-%m-%d"),
             "to": datetime.now().strftime("%Y-%m-%d"),
         }

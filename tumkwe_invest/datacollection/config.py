@@ -12,9 +12,9 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # API Keys (stored in .env file for security)
-ALPHA_VANTAGE_API_KEY = os.getenv("ALPHA_VANTAGE_API_KEY", "")
-NEWS_API_KEY = os.getenv("NEWS_API_KEY", "")
-FINNHUB_API_KEY = os.getenv("FINNHUB_API_KEY", "")
+# ALPHA_VANTAGE_API_KEY = os.getenv("ALPHA_VANTAGE_API_KEY", "")
+# NEWS_API_KEY = os.getenv("NEWS_API_KEY", "")
+# FINNHUB_API_KEY = os.getenv("FINNHUB_API_KEY", "")
 SEC_USER_AGENT = os.getenv(
     "SEC_USER_AGENT", "TumkweInvest myname@example.com"
 )  # SEC filings require user agent

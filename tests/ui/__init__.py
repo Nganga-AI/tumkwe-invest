@@ -1,1 +1,3 @@
-"""Test package for the UI module."""
+"""
+Test suite for UI components of Tumkwe Invest.
+"""

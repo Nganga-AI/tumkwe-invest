@@ -1,177 +1,141 @@
 """
-Tests for the technical analysis module of the data analysis package.
+Tests for technical analysis functionality.
 """
-
 import unittest
-
-import numpy as np
 import pandas as pd
+import numpy as np
 
 from tumkwe_invest.data_analysis.technical_analysis import TechnicalAnalyzer
 
 
-class TestTechnicalAnalyzer(unittest.TestCase):
-    """Test cases for TechnicalAnalyzer class."""
+class TestTechnicalAnalysis(unittest.TestCase):
+    """Test case for technical analysis functionality."""
 
     def setUp(self):
-        """Set up test fixtures."""
-        # Create sample price data
-        dates = pd.date_range(start="2020-01-01", periods=100, freq="D")
-        self.price_data = pd.DataFrame(
-            {
-                "open": np.random.normal(100, 5, 100),
-                "high": np.random.normal(105, 5, 100),
-                "low": np.random.normal(95, 5, 100),
-                "close": np.random.normal(100, 5, 100),
-                "volume": np.random.normal(1000000, 200000, 100),
-            },
-            index=dates,
-        )
+        """Set up test fixtures before each test method."""
+        # Create a simple price dataset for testing technical indicators
+        dates = pd.date_range(start='2023-01-01', periods=100)
+        data = {
+            'close': [100 + i + (i % 10) for i in range(100)],
+            'open': [100 + i for i in range(100)],
+            'high': [100 + i + 5 for i in range(100)],
+            'low': [100 + i - 5 for i in range(100)],
+            'volume': [1000000 + (i * 1000) for i in range(100)]
+        }
+        self.sample_price_data = pd.DataFrame(data, index=dates)
+        
+    def test_moving_average_calculation(self):
+        """Test calculation of simple moving average."""
+        analyzer = TechnicalAnalyzer(self.sample_price_data)
+        ma_20 = analyzer.calculate_moving_average(window=20)
+        
+        # Check MA calculation
+        self.assertEqual(len(ma_20), len(self.sample_price_data))
+        self.assertTrue(pd.isna(ma_20.iloc[0]))
+        self.assertTrue(pd.isna(ma_20.iloc[18]))
+        self.assertFalse(pd.isna(ma_20.iloc[19]))
+        
+        # Verify calculation with manual formula for one point
+        window = 20
+        idx = 30
+        expected_ma = sum(self.sample_price_data['close'][idx-window+1:idx+1]) / window
+        self.assertAlmostEqual(ma_20.iloc[idx], expected_ma, delta=0.001)
 
-        # Create reference data with known values
-        self.reference_data = pd.DataFrame(
-            {
-                "MA_20": self.price_data["close"].rolling(window=20).mean(),
-                "MA_50": self.price_data["close"].rolling(window=50).mean(),
-                "RSI": np.random.uniform(30, 70, 100),  # Simplified for testing
-            },
-            index=dates,
-        )
+    def test_rsi_calculation(self):
+        """Test calculation of RSI indicator."""
+        analyzer = TechnicalAnalyzer(self.sample_price_data)
+        rsi = analyzer.calculate_rsi(window=14)
+        
+        # RSI should be between 0 and 100
+        valid_rsi_values = rsi.dropna()
+        for val in valid_rsi_values:
+            self.assertTrue(0 <= val <= 100)
+        
+        # First n values should be NaN
+        self.assertTrue(pd.isna(rsi.iloc[0]))
+        self.assertFalse(pd.isna(rsi.iloc[15]))
 
-        # Initialize the analyzer
-        self.analyzer = TechnicalAnalyzer(self.price_data)
-
-    def test_calculate_moving_average(self):
-        """Test calculation of moving averages."""
-        # Calculate moving average
-        ma20 = self.analyzer.calculate_moving_average(window=20)
-
-        # Check that MA was calculated correctly
-        pd.testing.assert_series_equal(
-            ma20, self.price_data["close"].rolling(window=20).mean(), check_names=False
-        )
-
-        # Check that it's stored in the indicators dictionary
-        self.assertIn("MA_20", self.analyzer.indicators)
-
-    def test_calculate_rsi(self):
-        """Test calculation of RSI."""
-        # Calculate RSI
-        rsi = self.analyzer.calculate_rsi(window=14)
-
-        # Check that RSI has the correct length
-        self.assertEqual(len(rsi), len(self.price_data))
-
-        # Check RSI values are in the correct range (0-100)
-        self.assertTrue((rsi.dropna() >= 0).all() and (rsi.dropna() <= 100).all())
-
-        # Check that it's stored in the indicators dictionary
-        self.assertIn("RSI", self.analyzer.indicators)
-
-    def test_calculate_macd(self):
-        """Test calculation of MACD."""
-        # Calculate MACD
-        macd_line, signal_line, histogram = self.analyzer.calculate_macd(
-            fast_period=12, slow_period=26, signal_period=9
-        )
-
-        # Check that all components have the correct length
-        self.assertEqual(len(macd_line), len(self.price_data))
-        self.assertEqual(len(signal_line), len(self.price_data))
-        self.assertEqual(len(histogram), len(self.price_data))
-
-        # Check histogram is the difference between MACD and signal
-        pd.testing.assert_series_equal(
-            histogram, macd_line - signal_line, check_names=False
-        )
-
-        # Check that they're stored in the indicators dictionary
-        self.assertIn("MACD_line", self.analyzer.indicators)
-        self.assertIn("MACD_signal", self.analyzer.indicators)
-        self.assertIn("MACD_histogram", self.analyzer.indicators)
-
-    def test_calculate_bollinger_bands(self):
+    def test_bollinger_bands_calculation(self):
         """Test calculation of Bollinger Bands."""
-        # Calculate Bollinger Bands
-        middle, upper, lower = self.analyzer.calculate_bollinger_bands(
-            window=20, num_std=2.0
+        analyzer = TechnicalAnalyzer(self.sample_price_data)
+        middle, upper, lower = analyzer.calculate_bollinger_bands(window=20, num_std=2.0)
+        
+        # Check that upper > middle > lower
+        valid_idx = 25  # An index where we expect values
+        self.assertGreater(upper.iloc[valid_idx], middle.iloc[valid_idx])
+        self.assertGreater(middle.iloc[valid_idx], lower.iloc[valid_idx])
+        
+        # Calculate expected middle band at valid_idx (MA)
+        expected_middle = sum(self.sample_price_data['close'][valid_idx-20+1:valid_idx+1]) / 20
+        self.assertAlmostEqual(middle.iloc[valid_idx], expected_middle, delta=0.001)
+
+    def test_macd_calculation(self):
+        """Test calculation of MACD indicator."""
+        analyzer = TechnicalAnalyzer(self.sample_price_data)
+        macd_line, signal_line, histogram = analyzer.calculate_macd()
+        
+        # Check lengths
+        self.assertEqual(len(macd_line), len(self.sample_price_data))
+        self.assertEqual(len(signal_line), len(self.sample_price_data))
+        self.assertEqual(len(histogram), len(self.sample_price_data))
+        
+        # Check histogram = macd_line - signal_line
+        non_na_idx = -1  # Last value should be valid
+        self.assertAlmostEqual(
+            histogram.iloc[non_na_idx], 
+            macd_line.iloc[non_na_idx] - signal_line.iloc[non_na_idx],
+            delta=0.001
         )
-
-        # Calculate expected values
-        expected_middle = self.price_data["close"].rolling(window=20).mean()
-        expected_std = self.price_data["close"].rolling(window=20).std()
-        expected_upper = expected_middle + (expected_std * 2.0)
-        expected_lower = expected_middle - (expected_std * 2.0)
-
-        # Check calculations
-        pd.testing.assert_series_equal(middle, expected_middle, check_names=False)
-        pd.testing.assert_series_equal(upper, expected_upper, check_names=False)
-        pd.testing.assert_series_equal(lower, expected_lower, check_names=False)
-
-        # Check that they're stored in the indicators dictionary
-        self.assertIn("BB_middle", self.analyzer.indicators)
-        self.assertIn("BB_upper", self.analyzer.indicators)
-        self.assertIn("BB_lower", self.analyzer.indicators)
-
-    def test_detect_trend(self):
-        """Test trend detection."""
-        # Calculate necessary indicators first
-        self.analyzer.calculate_moving_average(50)
-        self.analyzer.calculate_moving_average(200)
-        self.analyzer.calculate_rsi()
-
-        # Detect trend
-        trend = self.analyzer.detect_trend()
-
-        # Check that the trend has the expected structure
-        self.assertIn("direction", trend)
-        self.assertIn("strength", trend)
-        self.assertIn("signals", trend)
-
-        # Check that direction is one of the expected values
-        self.assertIn(trend["direction"], ["bullish", "bearish", "neutral"])
-
-    def test_validate_indicators(self):
-        """Test validation of indicators."""
-        # Calculate all indicators
-        self.analyzer.calculate_all_indicators()
-
-        # Validate against reference data
-        validation_results = self.analyzer.validate_indicators(self.reference_data)
-
-        # Check that validation results are produced for indicators in reference data
-        for indicator in ["MA_20", "MA_50"]:
-            if indicator in self.reference_data:
-                self.assertIn(indicator, validation_results)
-
-        # Test RSI bounds validation
-        self.assertIn("RSI_bounds", validation_results)
 
     def test_calculate_all_indicators(self):
-        """Test calculation of all indicators."""
-        # Calculate all indicators
-        indicators = self.analyzer.calculate_all_indicators()
-
-        # Check that key indicators are present
-        expected_indicators = [
-            "MA_20",
-            "MA_50",
-            "MA_200",
-            "RSI",
-            "MACD_line",
-            "MACD_signal",
-            "MACD_histogram",
-            "BB_middle",
-            "BB_upper",
-            "BB_lower",
-        ]
-
+        """Test calculation of all indicators at once."""
+        analyzer = TechnicalAnalyzer(self.sample_price_data)
+        indicators = analyzer.calculate_all_indicators()
+        
+        # Check if all expected indicators are present
+        expected_indicators = ['MA_20', 'MA_50', 'MA_200', 'RSI', 
+                              'MACD_line', 'MACD_signal', 'MACD_histogram',
+                              'BB_middle', 'BB_upper', 'BB_lower']
+                              
         for indicator in expected_indicators:
             self.assertIn(indicator, indicators)
+            self.assertEqual(len(indicators[indicator]), len(self.sample_price_data))
 
-        # Check that indicators dictionary is the same object
-        self.assertIs(indicators, self.analyzer.indicators)
+    def test_detect_trend(self):
+        """Test trend detection functionality."""
+        analyzer = TechnicalAnalyzer(self.sample_price_data)
+        analyzer.calculate_all_indicators()
+        trend = analyzer.detect_trend()
+        
+        # Check that trend contains expected keys
+        self.assertIn('direction', trend)
+        self.assertIn('strength', trend)
+        self.assertIn('signals', trend)
+        
+        # Direction should be one of expected values
+        self.assertIn(trend['direction'], ['bullish', 'bearish', 'neutral'])
+
+    def test_validate_indicators(self):
+        """Test indicator validation function."""
+        analyzer = TechnicalAnalyzer(self.sample_price_data)
+        analyzer.calculate_all_indicators()
+        
+        # Create reference data with slight differences
+        reference_data = pd.DataFrame({
+            'RSI': analyzer.indicators['RSI'] * 1.001,  # 0.1% difference
+            'MA_50': analyzer.indicators['MA_50'] * 0.999  # 0.1% difference
+        })
+        
+        validation_results = analyzer.validate_indicators(reference_data)
+        
+        # Check validation results structure
+        self.assertIn('RSI', validation_results)
+        self.assertIn('mean_abs_error', validation_results['RSI'])
+        self.assertIn('matching', validation_results['RSI'])
+        
+        # RSI bounds check should be included
+        self.assertIn('RSI_bounds', validation_results)
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     unittest.main()

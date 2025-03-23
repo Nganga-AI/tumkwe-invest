@@ -9,7 +9,7 @@ from typing import Any, Dict, List, Optional
 import requests
 import yfinance as yf
 
-from ..config import ALPHA_VANTAGE_API_KEY, CACHE_DIRECTORY
+from ..config import CACHE_DIRECTORY
 from ..models import FinancialStatement, KeyMetrics
 
 # Create cache directory
@@ -69,7 +69,7 @@ def get_alpha_vantage_metrics(symbol: str) -> Optional[KeyMetrics]:
     Returns:
         Dictionary with financial metrics
     """
-    if not ALPHA_VANTAGE_API_KEY:
+    if not os.getenv("ALPHA_VANTAGE_API_KEY"):
         print("Warning: ALPHA_VANTAGE_API_KEY not set. Cannot fetch metrics.")
         return {}
 
@@ -81,7 +81,7 @@ def get_alpha_vantage_metrics(symbol: str) -> Optional[KeyMetrics]:
         params = {
             "function": "OVERVIEW",
             "symbol": symbol,
-            "apikey": ALPHA_VANTAGE_API_KEY,
+            "apikey": os.getenv("ALPHA_VANTAGE_API_KEY"),
         }
 
         response = requests.get(url, params=params)
