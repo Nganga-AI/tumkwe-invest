@@ -4,12 +4,12 @@ Test cases for LLM provider module.
 
 import os
 import unittest
-from unittest.mock import patch, MagicMock
+from unittest.mock import MagicMock, patch
 
 from tumkwe_invest.llm_management.llm_provider import (
+    LLMManager,
     LLMProvider,
     get_llm_provider,
-    LLMManager,
 )
 
 
@@ -30,11 +30,9 @@ class TestLLMProvider(unittest.TestCase):
         mock_chat_openai.return_value = mock_instance
 
         result = get_llm_provider("openai", api_key="test_key", model="gpt-4")
-        
+
         self.assertEqual(result, mock_instance)
-        mock_chat_openai.assert_called_once_with(
-            model="gpt-4", temperature=0.0
-        )
+        mock_chat_openai.assert_called_once_with(model="gpt-4", temperature=0.0)
         self.assertEqual(os.environ.get("OPENAI_API_KEY"), "test_key")
 
     @patch("tumkwe_invest.llm_management.llm_provider.ChatAnthropic")
@@ -44,11 +42,9 @@ class TestLLMProvider(unittest.TestCase):
         mock_chat_anthropic.return_value = mock_instance
 
         result = get_llm_provider(
-            LLMProvider.ANTHROPIC, 
-            api_key="test_key", 
-            model="claude-3-opus"
+            LLMProvider.ANTHROPIC, api_key="test_key", model="claude-3-opus"
         )
-        
+
         self.assertEqual(result, mock_instance)
         mock_chat_anthropic.assert_called_once_with(
             model="claude-3-opus", temperature=0.0
@@ -61,16 +57,10 @@ class TestLLMProvider(unittest.TestCase):
         mock_instance = MagicMock()
         mock_chat_groq.return_value = mock_instance
 
-        result = get_llm_provider(
-            "groq", 
-            api_key="test_key", 
-            temperature=0.7
-        )
-        
+        result = get_llm_provider("groq", api_key="test_key", temperature=0.7)
+
         self.assertEqual(result, mock_instance)
-        mock_chat_groq.assert_called_once_with(
-            model="llama3-8b-8192", temperature=0.7
-        )
+        mock_chat_groq.assert_called_once_with(model="llama3-8b-8192", temperature=0.7)
         self.assertEqual(os.environ.get("GROQ_API_KEY"), "test_key")
 
     @patch("tumkwe_invest.llm_management.llm_provider.ChatOllama")
@@ -80,11 +70,9 @@ class TestLLMProvider(unittest.TestCase):
         mock_chat_ollama.return_value = mock_instance
 
         result = get_llm_provider(LLMProvider.OLLAMA, temperature=0.5)
-        
+
         self.assertEqual(result, mock_instance)
-        mock_chat_ollama.assert_called_once_with(
-            model="llama3", temperature=0.5
-        )
+        mock_chat_ollama.assert_called_once_with(model="llama3", temperature=0.5)
 
     def test_get_llm_provider_invalid(self):
         """Test that an invalid provider raises ValueError."""
@@ -93,22 +81,18 @@ class TestLLMProvider(unittest.TestCase):
 
     def test_get_llm_provider_with_additional_kwargs(self):
         """Test passing additional kwargs to provider."""
-        with patch("tumkwe_invest.llm_management.llm_provider.ChatOpenAI") as mock_chat_openai:
+        with patch(
+            "tumkwe_invest.llm_management.llm_provider.ChatOpenAI"
+        ) as mock_chat_openai:
             mock_instance = MagicMock()
             mock_chat_openai.return_value = mock_instance
 
             get_llm_provider(
-                "openai",
-                model="gpt-3.5-turbo",
-                streaming=True,
-                max_tokens=100
+                "openai", model="gpt-3.5-turbo", streaming=True, max_tokens=100
             )
-            
+
             mock_chat_openai.assert_called_once_with(
-                model="gpt-3.5-turbo",
-                temperature=0.0,
-                streaming=True,
-                max_tokens=100
+                model="gpt-3.5-turbo", temperature=0.0, streaming=True, max_tokens=100
             )
 
 
@@ -120,25 +104,19 @@ class TestLLMManager(unittest.TestCase):
         """Test LLMManager initialization."""
         mock_llm = MagicMock()
         mock_get_provider.return_value = mock_llm
-        
+
         manager = LLMManager(
-            provider="openai",
-            api_key="test_key",
-            model="gpt-4",
-            temperature=0.5
+            provider="openai", api_key="test_key", model="gpt-4", temperature=0.5
         )
-        
+
         self.assertEqual(manager.provider_name, "openai")
         self.assertEqual(manager.model, "gpt-4")
         self.assertEqual(manager.temperature, 0.5)
         self.assertEqual(manager.api_key, "test_key")
         self.assertEqual(manager.llm, mock_llm)
-        
+
         mock_get_provider.assert_called_once_with(
-            provider="openai",
-            api_key="test_key",
-            model="gpt-4",
-            temperature=0.5
+            provider="openai", api_key="test_key", model="gpt-4", temperature=0.5
         )
 
     @patch("tumkwe_invest.llm_management.llm_provider.get_llm_provider")
@@ -146,10 +124,10 @@ class TestLLMManager(unittest.TestCase):
         """Test LLMManager.get_llm()."""
         mock_llm = MagicMock()
         mock_get_provider.return_value = mock_llm
-        
+
         manager = LLMManager(provider="anthropic")
         result = manager.get_llm()
-        
+
         self.assertEqual(result, mock_llm)
 
     @patch("tumkwe_invest.llm_management.llm_provider.get_llm_provider")
@@ -158,22 +136,19 @@ class TestLLMManager(unittest.TestCase):
         mock_llm1 = MagicMock()
         mock_llm2 = MagicMock()
         mock_get_provider.side_effect = [mock_llm1, mock_llm2]
-        
+
         manager = LLMManager(provider="openai", api_key="key1", model="gpt-4")
         self.assertEqual(manager.llm, mock_llm1)
-        
+
         manager.change_provider(provider="anthropic", api_key="key2", model="claude-3")
-        
+
         self.assertEqual(manager.provider_name, "anthropic")
         self.assertEqual(manager.api_key, "key2")
         self.assertEqual(manager.model, "claude-3")
         self.assertEqual(manager.llm, mock_llm2)
-        
+
         mock_get_provider.assert_called_with(
-            provider="anthropic",
-            api_key="key2",
-            model="claude-3",
-            temperature=0.0
+            provider="anthropic", api_key="key2", model="claude-3", temperature=0.0
         )
 
 

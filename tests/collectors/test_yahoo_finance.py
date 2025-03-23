@@ -1,22 +1,23 @@
 """
 Tests for Yahoo Finance data collector.
 """
+
 import datetime
 import unittest
-from unittest.mock import patch, MagicMock
+from unittest.mock import MagicMock, patch
 
 from tumkwe_invest.datacollection.collectors.yahoo_finance import (
-    get_stock_data,
     get_company_profile,
-    get_financial_statements
+    get_financial_statements,
+    get_stock_data,
 )
 
 
 class TestYahooFinance(unittest.TestCase):
-    
+
     def test_get_stock_data(self):
         # Setup mock
-        with patch('yfinance.download') as mock_yf_download:
+        with patch("yfinance.download") as mock_yf_download:
             mock_data = MagicMock()
             mock_data.iterrows.return_value = [
                 (
@@ -59,14 +60,16 @@ class TestYahooFinance(unittest.TestCase):
             self.assertEqual(result[0].source, "yahoo_finance")
 
             # Check that yf.download was called with the right parameters
-            mock_yf_download.assert_called_once_with("AAPL", start="2023-01-01", end="2023-01-02")
+            mock_yf_download.assert_called_once_with(
+                "AAPL", start="2023-01-01", end="2023-01-02"
+            )
 
     def test_get_company_profile(self):
         # Setup mock
-        with patch('yfinance.Ticker') as mock:
+        with patch("yfinance.Ticker") as mock:
             ticker_instance = MagicMock()
             mock.return_value = ticker_instance
-            
+
             ticker_instance.info = {
                 "longName": "Apple Inc.",
                 "sector": "Technology",
@@ -86,7 +89,10 @@ class TestYahooFinance(unittest.TestCase):
             self.assertEqual(result.name, "Apple Inc.")
             self.assertEqual(result.sector, "Technology")
             self.assertEqual(result.industry, "Consumer Electronics")
-            self.assertEqual(result.description, "Apple Inc. designs, manufactures, and markets smartphones, personal computers, tablets, wearables, and accessories worldwide.")
+            self.assertEqual(
+                result.description,
+                "Apple Inc. designs, manufactures, and markets smartphones, personal computers, tablets, wearables, and accessories worldwide.",
+            )
             self.assertEqual(result.website, "https://www.apple.com")
             self.assertEqual(result.employees, 154000)
             self.assertEqual(result.country, "United States")
@@ -94,10 +100,10 @@ class TestYahooFinance(unittest.TestCase):
 
     def test_get_company_profile_error(self):
         # Setup mock to raise exception
-        with patch('yfinance.Ticker') as mock:
+        with patch("yfinance.Ticker") as mock:
             ticker_instance = MagicMock()
             mock.return_value = ticker_instance
-            
+
             ticker_instance.info = {}
             ticker_instance.info.__getitem__.side_effect = Exception("API Error")
 
@@ -109,12 +115,12 @@ class TestYahooFinance(unittest.TestCase):
 
     def test_get_financial_statements(self):
         # Create mock date and ticker
-        with patch('yfinance.Ticker') as mock:
+        with patch("yfinance.Ticker") as mock:
             ticker_instance = MagicMock()
             mock.return_value = ticker_instance
 
             mock_date = datetime.datetime(2022, 12, 31)
-            
+
             # Create mock data for income statement
             income_data = MagicMock()
             income_data.columns = [mock_date]
@@ -129,7 +135,11 @@ class TestYahooFinance(unittest.TestCase):
             balance_data = MagicMock()
             balance_data.columns = [mock_date]
             balance_data[mock_date] = MagicMock()
-            balance_data.index = ["TotalAssets", "TotalLiabilities", "StockholdersEquity"]
+            balance_data.index = [
+                "TotalAssets",
+                "TotalLiabilities",
+                "StockholdersEquity",
+            ]
             balance_data[mock_date]["TotalAssets"] = 200000000
             balance_data[mock_date]["TotalLiabilities"] = 100000000
             balance_data[mock_date]["StockholdersEquity"] = 100000000
@@ -139,7 +149,11 @@ class TestYahooFinance(unittest.TestCase):
             cashflow_data = MagicMock()
             cashflow_data.columns = [mock_date]
             cashflow_data[mock_date] = MagicMock()
-            cashflow_data.index = ["OperatingCashFlow", "InvestingCashFlow", "FinancingCashFlow"]
+            cashflow_data.index = [
+                "OperatingCashFlow",
+                "InvestingCashFlow",
+                "FinancingCashFlow",
+            ]
             cashflow_data[mock_date]["OperatingCashFlow"] = 30000000
             cashflow_data[mock_date]["InvestingCashFlow"] = -10000000
             cashflow_data[mock_date]["FinancingCashFlow"] = -5000000
@@ -156,25 +170,29 @@ class TestYahooFinance(unittest.TestCase):
 
             self.assertEqual(len(result["income_statement"]), 1)
             self.assertEqual(result["income_statement"][0].symbol, "AAPL")
-            self.assertEqual(result["income_statement"][0].statement_type, "income_statement")
+            self.assertEqual(
+                result["income_statement"][0].statement_type, "income_statement"
+            )
             self.assertEqual(result["income_statement"][0].period, "annual")
             self.assertEqual(result["income_statement"][0].date, mock_date)
             self.assertEqual(result["income_statement"][0].data["Revenue"], 100000000)
-            
+
             self.assertEqual(len(result["balance_sheet"]), 1)
             self.assertEqual(result["balance_sheet"][0].data["TotalAssets"], 200000000)
-            
+
             self.assertEqual(len(result["cash_flow"]), 1)
             self.assertEqual(result["cash_flow"][0].data["OperatingCashFlow"], 30000000)
 
     def test_get_financial_statements_error(self):
         # Setup mocks to raise exceptions
-        with patch('yfinance.Ticker') as mock:
+        with patch("yfinance.Ticker") as mock:
             ticker_instance = MagicMock()
             mock.return_value = ticker_instance
-            
+
             ticker_instance.income_stmt.__getitem__.side_effect = Exception("API Error")
-            ticker_instance.balance_sheet.__getitem__.side_effect = Exception("API Error")
+            ticker_instance.balance_sheet.__getitem__.side_effect = Exception(
+                "API Error"
+            )
             ticker_instance.cashflow.__getitem__.side_effect = Exception("API Error")
 
             # Call function

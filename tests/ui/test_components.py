@@ -1,7 +1,15 @@
 from tumkwe_invest.ui.components import (
-    UIComponent, Card, Button, Tooltip, Tab, ToggleSwitch,
-    Chart, SectionLayout, create_view_mode_toggle,
-    create_tooltip_with_info, create_metric_card
+    Button,
+    Card,
+    Chart,
+    SectionLayout,
+    Tab,
+    ToggleSwitch,
+    Tooltip,
+    UIComponent,
+    create_metric_card,
+    create_tooltip_with_info,
+    create_view_mode_toggle,
 )
 
 
@@ -180,10 +188,10 @@ class TestTab:
     def test_init(self):
         tabs = [
             {"label": "Tab 1", "content": "Content 1"},
-            {"label": "Tab 2", "content": "Content 2"}
+            {"label": "Tab 2", "content": "Content 2"},
         ]
         tab = Tab(tabs, 1, "tabs-id")
-        
+
         assert tab.component_id == "tabs-id"
         assert tab.tabs == tabs
         assert tab.active_tab == 1
@@ -201,14 +209,14 @@ class TestTab:
     def test_set_active_tab(self):
         tabs = [
             {"label": "Tab 1", "content": "Content 1"},
-            {"label": "Tab 2", "content": "Content 2"}
+            {"label": "Tab 2", "content": "Content 2"},
         ]
         tab = Tab(tabs, 0, "tabs-id")
-        
+
         returned = tab.set_active_tab(1)
         assert tab.active_tab == 1
         assert returned is tab
-        
+
         # Test invalid index
         tab.set_active_tab(99)
         assert tab.active_tab == 1  # Should not change
@@ -216,10 +224,10 @@ class TestTab:
     def test_to_dict(self):
         tabs = [
             {"label": "Tab 1", "content": "Content 1"},
-            {"label": "Tab 2", "content": "Content 2"}
+            {"label": "Tab 2", "content": "Content 2"},
         ]
         tab = Tab(tabs, 0, "tabs-id")
-        
+
         result = tab.to_dict()
         assert result["type"] == "tabs"
         assert result["tabs"] == tabs
@@ -229,7 +237,7 @@ class TestTab:
 class TestToggleSwitch:
     def test_init(self):
         toggle = ToggleSwitch("Enable Feature", True, "toggle-id")
-        
+
         assert toggle.component_id == "toggle-id"
         assert toggle.label == "Enable Feature"
         assert toggle.checked is True
@@ -238,14 +246,14 @@ class TestToggleSwitch:
 
     def test_set_checked(self):
         toggle = ToggleSwitch("Enable Feature", True)
-        
+
         returned = toggle.set_checked(False)
         assert toggle.checked is False
         assert returned is toggle
 
     def test_set_description(self):
         toggle = ToggleSwitch("Enable Feature")
-        
+
         returned = toggle.set_description("This enables the feature")
         assert toggle.description == "This enables the feature"
         assert returned is toggle
@@ -253,7 +261,7 @@ class TestToggleSwitch:
     def test_to_dict(self):
         toggle = ToggleSwitch("Enable Feature", True, "toggle-id")
         toggle.set_description("This enables the feature")
-        
+
         result = toggle.to_dict()
         assert result["type"] == "toggleSwitch"
         assert result["label"] == "Enable Feature"
@@ -265,7 +273,7 @@ class TestChart:
     def test_init(self):
         chart_config = {"title": "Sales Data", "type": "line"}
         chart = Chart(chart_config, "400px", "80%", "chart-id")
-        
+
         assert chart.component_id == "chart-id"
         assert chart.chart_config == chart_config
         assert chart.height == "400px"
@@ -276,7 +284,7 @@ class TestChart:
     def test_set_height(self):
         chart_config = {"title": "Test Chart"}
         chart = Chart(chart_config)
-        
+
         returned = chart.set_height("500px")
         assert chart.height == "500px"
         assert returned is chart
@@ -284,7 +292,7 @@ class TestChart:
     def test_set_width(self):
         chart_config = {"title": "Test Chart"}
         chart = Chart(chart_config)
-        
+
         returned = chart.set_width("90%")
         assert chart.width == "90%"
         assert returned is chart
@@ -292,7 +300,7 @@ class TestChart:
     def test_update_config(self):
         chart_config = {"title": "Test Chart", "type": "bar"}
         chart = Chart(chart_config)
-        
+
         returned = chart.update_config({"type": "line", "legend": True})
         assert chart.chart_config["type"] == "line"
         assert chart.chart_config["legend"] is True
@@ -302,7 +310,7 @@ class TestChart:
     def test_to_dict(self):
         chart_config = {"title": "Test Chart", "type": "bar"}
         chart = Chart(chart_config, "400px", "100%", "chart-id")
-        
+
         result = chart.to_dict()
         assert result["type"] == "chart"
         assert result["chartConfig"] == chart_config
@@ -314,7 +322,7 @@ class TestSectionLayout:
     def test_init(self):
         components = [{"type": "card", "config": {"title": "Test"}}]
         section = SectionLayout("My Section", components, True, "section-id")
-        
+
         assert section.component_id == "section-id"
         assert section.title == "My Section"
         assert section.components == components
@@ -325,7 +333,7 @@ class TestSectionLayout:
     def test_add_component(self):
         section = SectionLayout("My Section")
         component = {"type": "button", "config": {"label": "Click"}}
-        
+
         returned = section.add_component(component)
         assert len(section.components) == 1
         assert section.components[0] == component
@@ -333,14 +341,14 @@ class TestSectionLayout:
 
     def test_set_description(self):
         section = SectionLayout("My Section")
-        
+
         returned = section.set_description("Section description")
         assert section.description == "Section description"
         assert returned is section
 
     def test_set_collapsed(self):
         section = SectionLayout("My Section", collapsed=False)
-        
+
         returned = section.set_collapsed(True)
         assert section.collapsed is True
         assert returned is section
@@ -349,7 +357,7 @@ class TestSectionLayout:
         components = [{"type": "card", "config": {"title": "Test"}}]
         section = SectionLayout("My Section", components, True, "section-id")
         section.set_description("Section description")
-        
+
         result = section.to_dict()
         assert result["type"] == "section"
         assert result["title"] == "My Section"
@@ -362,7 +370,7 @@ class TestHelperFunctions:
     def test_create_view_mode_toggle(self):
         toggle_basic = create_view_mode_toggle("basic")
         toggle_advanced = create_view_mode_toggle("advanced")
-        
+
         assert toggle_basic["checked"] is False
         assert toggle_advanced["checked"] is True
         assert toggle_basic["id"] == "view-mode-toggle"
@@ -371,7 +379,7 @@ class TestHelperFunctions:
 
     def test_create_tooltip_with_info(self):
         tooltip = create_tooltip_with_info("test-id", "Help information")
-        
+
         assert tooltip["content"] == "Help information"
         assert tooltip["id"] == "test-id-tooltip"
         assert tooltip["attributes"]["data-target"] == "test-id"
@@ -383,25 +391,24 @@ class TestHelperFunctions:
             "Quarterly revenue",
             "+5%",
             "up",
-            "Revenue increased by 5% compared to last quarter"
+            "Revenue increased by 5% compared to last quarter",
         )
-        
+
         assert card["id"] == "metric-revenue"
         assert card["title"] == "Revenue"
         assert card["content"]["value"] == "$1.5M"
         assert card["content"]["description"] == "Quarterly revenue"
         assert card["content"]["trend"] == "+5%"
         assert card["content"]["trendDirection"] == "up"
-        assert card["attributes"]["data-tooltip"] == "Revenue increased by 5% compared to last quarter"
+        assert (
+            card["attributes"]["data-tooltip"]
+            == "Revenue increased by 5% compared to last quarter"
+        )
         assert "metric-card" in card["classes"]
 
         # Test without optional parameters
-        card_minimal = create_metric_card(
-            "Users",
-            "10,000",
-            "Active users"
-        )
-        
+        card_minimal = create_metric_card("Users", "10,000", "Active users")
+
         assert card_minimal["title"] == "Users"
         assert card_minimal["content"]["value"] == "10,000"
         assert "trend" not in card_minimal["content"]

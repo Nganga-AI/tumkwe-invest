@@ -1,16 +1,17 @@
 """
 Tests for financial metrics collectors.
 """
-import unittest
+
 import datetime
 import os
-from unittest.mock import patch, MagicMock
+import unittest
+from unittest.mock import MagicMock, patch
 
 from tumkwe_invest.datacollection.collectors.financial_metrics import (
-    get_key_metrics_yf,
     get_alpha_vantage_metrics,
     get_comprehensive_metrics,
-    get_quarterly_financial_data
+    get_key_metrics_yf,
+    get_quarterly_financial_data,
 )
 
 
@@ -18,21 +19,21 @@ class TestFinancialMetrics(unittest.TestCase):
 
     def setUp(self):
         # Save original env vars
-        self.original_alpha_vantage_key = os.environ.get('ALPHA_VANTAGE_API_KEY', None)
+        self.original_alpha_vantage_key = os.environ.get("ALPHA_VANTAGE_API_KEY", None)
 
     def tearDown(self):
         # Restore original env vars
         if self.original_alpha_vantage_key is not None:
-            os.environ['ALPHA_VANTAGE_API_KEY'] = self.original_alpha_vantage_key
-        elif 'ALPHA_VANTAGE_API_KEY' in os.environ:
-            del os.environ['ALPHA_VANTAGE_API_KEY']
+            os.environ["ALPHA_VANTAGE_API_KEY"] = self.original_alpha_vantage_key
+        elif "ALPHA_VANTAGE_API_KEY" in os.environ:
+            del os.environ["ALPHA_VANTAGE_API_KEY"]
 
     def test_get_key_metrics_yf(self):
         # Setup mock ticker info
-        with patch('yfinance.Ticker') as mock:
+        with patch("yfinance.Ticker") as mock:
             ticker_instance = MagicMock()
             mock.return_value = ticker_instance
-            
+
             ticker_instance.info = {
                 "trailingPE": 25.6,
                 "priceToBook": 12.3,
@@ -44,7 +45,7 @@ class TestFinancialMetrics(unittest.TestCase):
                 "returnOnEquity": 0.35,
                 "returnOnAssets": 0.15,
                 "currentRatio": 1.8,
-                "quickRatio": 1.5
+                "quickRatio": 1.5,
             }
 
             # Call function
@@ -69,10 +70,10 @@ class TestFinancialMetrics(unittest.TestCase):
 
     def test_get_key_metrics_yf_error(self):
         # Setup mock to raise exception
-        with patch('yfinance.Ticker') as mock:
+        with patch("yfinance.Ticker") as mock:
             ticker_instance = MagicMock()
             mock.return_value = ticker_instance
-            
+
             ticker_instance.info.__getitem__.side_effect = Exception("API Error")
 
             # Call function
@@ -84,11 +85,11 @@ class TestFinancialMetrics(unittest.TestCase):
     def test_get_alpha_vantage_metrics(self):
         # Setup environment and mocks
         os.environ["ALPHA_VANTAGE_API_KEY"] = "fake-api-key"
-        
-        with patch('requests.get') as mock_get:
+
+        with patch("requests.get") as mock_get:
             mock_response = MagicMock()
             mock_get.return_value = mock_response
-            
+
             # Mock the API response
             mock_response.json.return_value = {
                 "Symbol": "AAPL",
@@ -102,7 +103,7 @@ class TestFinancialMetrics(unittest.TestCase):
                 "ReturnOnEquityTTM": "0.35",
                 "ReturnOnAssetsTTM": "0.15",
                 "CurrentRatio": "1.8",
-                "QuickRatio": "1.5"
+                "QuickRatio": "1.5",
             }
 
             # Call function
@@ -129,30 +130,30 @@ class TestFinancialMetrics(unittest.TestCase):
             # Check API call parameters
             mock_get.assert_called_once()
             args, kwargs = mock_get.call_args
-            self.assertEqual(kwargs['params']['function'], "OVERVIEW")
-            self.assertEqual(kwargs['params']['symbol'], "AAPL")
-            self.assertEqual(kwargs['params']['apikey'], "fake-api-key")
+            self.assertEqual(kwargs["params"]["function"], "OVERVIEW")
+            self.assertEqual(kwargs["params"]["symbol"], "AAPL")
+            self.assertEqual(kwargs["params"]["apikey"], "fake-api-key")
 
     def test_get_alpha_vantage_metrics_no_api_key(self):
         # Ensure API key is not set
-        if 'ALPHA_VANTAGE_API_KEY' in os.environ:
-            del os.environ['ALPHA_VANTAGE_API_KEY']
-        
+        if "ALPHA_VANTAGE_API_KEY" in os.environ:
+            del os.environ["ALPHA_VANTAGE_API_KEY"]
+
         # Call function
         result = get_alpha_vantage_metrics("AAPL")
-        
+
         # Should return empty dict when API key is not available
         self.assertEqual(result, {})
 
     def test_get_comprehensive_metrics(self):
         # Setup mocks for both Yahoo Finance and Alpha Vantage
         os.environ["ALPHA_VANTAGE_API_KEY"] = "fake-api-key"
-        
+
         # Mock YF Ticker
-        with patch('yfinance.Ticker') as yf_mock:
+        with patch("yfinance.Ticker") as yf_mock:
             ticker_instance = MagicMock()
             yf_mock.return_value = ticker_instance
-            
+
             # Mock YF response
             ticker_instance.info = {
                 "trailingPE": 25.6,
@@ -165,14 +166,14 @@ class TestFinancialMetrics(unittest.TestCase):
                 "returnOnEquity": 0.35,
                 "returnOnAssets": 0.15,
                 "currentRatio": 1.8,
-                "quickRatio": 1.5
+                "quickRatio": 1.5,
             }
-            
+
             # Mock Alpha Vantage API
-            with patch('requests.get') as av_mock_get:
+            with patch("requests.get") as av_mock_get:
                 mock_response = MagicMock()
                 av_mock_get.return_value = mock_response
-                
+
                 # Mock Alpha Vantage response
                 mock_response.json.return_value = {
                     "Symbol": "AAPL",
@@ -186,7 +187,7 @@ class TestFinancialMetrics(unittest.TestCase):
                     "ReturnOnEquityTTM": "0.36",
                     "ReturnOnAssetsTTM": "0.16",
                     "CurrentRatio": "1.9",
-                    "QuickRatio": "1.6"
+                    "QuickRatio": "1.6",
                 }
 
                 # Call function
@@ -197,7 +198,7 @@ class TestFinancialMetrics(unittest.TestCase):
                 self.assertEqual(result.symbol, "AAPL")
                 self.assertEqual(result.source, "combined")
                 self.assertIsInstance(result.date, datetime.datetime)
-                
+
                 # Should use YF values where available
                 self.assertEqual(result.pe_ratio, 25.6)
                 self.assertEqual(result.pb_ratio, 12.3)
@@ -208,7 +209,7 @@ class TestFinancialMetrics(unittest.TestCase):
                 self.assertEqual(result.return_on_assets, 0.15)
                 self.assertEqual(result.current_ratio, 1.8)
                 self.assertEqual(result.quick_ratio, 1.5)
-                
+
                 # Should fall back to Alpha Vantage for missing YF values
                 self.assertEqual(result.dividend_yield, "1.5")
                 self.assertEqual(result.debt_to_equity, "1.6")
@@ -216,11 +217,11 @@ class TestFinancialMetrics(unittest.TestCase):
     def test_get_quarterly_financial_data(self):
         # Create mock date
         mock_date = datetime.datetime(2022, 3, 31)  # Q1
-        
-        with patch('yfinance.Ticker') as mock:
+
+        with patch("yfinance.Ticker") as mock:
             ticker_instance = MagicMock()
             mock.return_value = ticker_instance
-            
+
             # Create mock quarterly income statement
             income_stmt_q = MagicMock()
             income_stmt_q.columns = [mock_date]
@@ -245,7 +246,11 @@ class TestFinancialMetrics(unittest.TestCase):
             cash_flow_q = MagicMock()
             cash_flow_q.columns = [mock_date]
             cash_flow_q[mock_date] = MagicMock()
-            cash_flow_q.index = ["OperatingCashFlow", "InvestingCashFlow", "FinancingCashFlow"]
+            cash_flow_q.index = [
+                "OperatingCashFlow",
+                "InvestingCashFlow",
+                "FinancingCashFlow",
+            ]
             cash_flow_q[mock_date]["OperatingCashFlow"] = 28000000000
             cash_flow_q[mock_date]["InvestingCashFlow"] = -8000000000
             cash_flow_q[mock_date]["FinancingCashFlow"] = -20000000000
@@ -259,7 +264,7 @@ class TestFinancialMetrics(unittest.TestCase):
             self.assertIn("income_statement", result)
             self.assertIn("balance_sheet", result)
             self.assertIn("cash_flow", result)
-            
+
             self.assertEqual(len(result["income_statement"]), 1)
             income_stmt = result["income_statement"][0]
             self.assertEqual(income_stmt.symbol, "AAPL")
@@ -269,12 +274,12 @@ class TestFinancialMetrics(unittest.TestCase):
             self.assertEqual(income_stmt.fiscal_quarter, 1)  # Q1 (Jan-Mar)
             self.assertEqual(income_stmt.fiscal_year, 2022)
             self.assertEqual(income_stmt.data["Revenue"], 97000000000)
-            
+
             self.assertEqual(len(result["balance_sheet"]), 1)
             balance = result["balance_sheet"][0]
             self.assertEqual(balance.data["TotalAssets"], 350000000000)
             self.assertEqual(balance.fiscal_quarter, 1)
-            
+
             self.assertEqual(len(result["cash_flow"]), 1)
             cash_flow = result["cash_flow"][0]
             self.assertEqual(cash_flow.data["OperatingCashFlow"], 28000000000)
