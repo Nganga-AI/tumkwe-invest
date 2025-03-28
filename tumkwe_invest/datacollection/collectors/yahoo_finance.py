@@ -7,7 +7,7 @@ from typing import Dict, List, Optional
 import yfinance as yf
 
 from ..models import CompanyProfile, FinancialStatement, StockPrice
-
+from loguru import logger
 
 def get_stock_data(symbol: str, start_date: str, end_date: str) -> List[StockPrice]:
     """
@@ -68,7 +68,7 @@ def get_company_profile(symbol: str) -> Optional[CompanyProfile]:
         )
         return profile
     except Exception as e:
-        print(f"Error fetching company profile for {symbol}: {e}")
+        logger.error(f"Error fetching company profile for {symbol}: {e}")
         return None
 
 
@@ -102,7 +102,7 @@ def get_financial_statements(symbol: str) -> Dict[str, List[FinancialStatement]]
             )
             result["income_statement"].append(statement)
     except Exception as e:
-        print(f"Error fetching income statement for {symbol}: {e}")
+        logger.error(f"Error fetching income statement for {symbol}: {e}")
 
     # Balance Sheet
     try:
@@ -119,7 +119,7 @@ def get_financial_statements(symbol: str) -> Dict[str, List[FinancialStatement]]
             )
             result["balance_sheet"].append(statement)
     except Exception as e:
-        print(f"Error fetching balance sheet for {symbol}: {e}")
+        logger.error(f"Error fetching balance sheet for {symbol}: {e}")
 
     # Cash Flow
     try:
@@ -136,6 +136,6 @@ def get_financial_statements(symbol: str) -> Dict[str, List[FinancialStatement]]
             )
             result["cash_flow"].append(statement)
     except Exception as e:
-        print(f"Error fetching cash flow for {symbol}: {e}")
+        logger.error(f"Error fetching cash flow for {symbol}: {e}")
 
     return result

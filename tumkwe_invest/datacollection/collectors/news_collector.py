@@ -10,7 +10,7 @@ from typing import List
 import requests
 
 from ..models import NewsArticle
-
+from loguru import logger
 
 def get_company_news(
     company_symbol: str = None,
@@ -31,7 +31,7 @@ def get_company_news(
         List of NewsArticle objects
     """
     if not os.getenv("NEWS_API_KEY"):
-        print("Warning: NEWS_API_KEY not set. Cannot fetch news.")
+        logger.warning("Warning: NEWS_API_KEY not set. Cannot fetch news.")
         return []
 
     if not company_symbol and not company_name:
@@ -71,12 +71,12 @@ def get_company_news(
 
                 articles.append(news)
             except Exception as e:
-                print(f"Error processing article: {e}")
+                logger.error(f"Error processing article: {e}")
 
             # Be kind to servers by adding a small delay
             time.sleep(0.5)
 
     except Exception as e:
-        print(f"Error fetching news for {company_name}: {e}")
+        logger.error(f"Error fetching news for {company_name}: {e}")
 
     return articles

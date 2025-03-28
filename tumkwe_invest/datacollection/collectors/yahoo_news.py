@@ -8,7 +8,7 @@ from typing import List, Union
 import yfinance as yf
 
 from ..models import NewsArticle
-
+from loguru import logger
 
 def get_yahoo_finance_news(
     company_symbol: str, max_articles: int = 25
@@ -59,13 +59,13 @@ def get_yahoo_finance_news(
 
                 articles.append(news)
             except Exception as e:
-                print(f"Error processing Yahoo Finance article: {e}")
+                logger.error(f"Error processing Yahoo Finance article: {e}")
 
-        print(
+        logger.info(
             f"Successfully retrieved {len(articles)} news articles for {company_symbol} from Yahoo Finance"
         )
 
     except Exception as e:
-        print(f"Error fetching Yahoo Finance news for {company_symbol}: {e}")
+        logger.error(f"Error fetching Yahoo Finance news for {company_symbol}: {e}")
 
     return articles

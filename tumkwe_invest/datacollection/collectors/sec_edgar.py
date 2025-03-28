@@ -16,7 +16,7 @@ from bs4 import BeautifulSoup
 
 from ..config import API_RATE_LIMITS, CACHE_DIRECTORY, SEC_USER_AGENT
 from ..models import SECFiling
-
+from loguru import logger
 # Create cache directory
 os.makedirs(os.path.join(CACHE_DIRECTORY, "sec_filings"), exist_ok=True)
 
@@ -78,11 +78,11 @@ def get_cik_by_ticker(ticker: str) -> Optional[str]:
 
             return cik
         else:
-            print(f"Could not find CIK for {ticker}")
+            logger.info(f"Could not find CIK for {ticker}")
             return None
 
     except Exception as e:
-        print(f"Error getting CIK for {ticker}: {e}")
+        logger.error(f"Error getting CIK for {ticker}: {e}")
         return None
 
 
@@ -162,10 +162,10 @@ def get_recent_filings(
 
                             filings.append(filing)
                 except Exception as e:
-                    print(f"Error processing filing row: {e}")
+                    logger.error(f"Error processing filing row: {e}")
 
     except Exception as e:
-        print(f"Error fetching SEC filings for {ticker}: {e}")
+        logger.error(f"Error fetching SEC filings for {ticker}: {e}")
 
     return filings
 
@@ -233,11 +233,11 @@ def download_filing_document(filing: SECFiling) -> Optional[str]:
 
                             return content
 
-        print(
+        logger.info(
             f"Could not find document content for {filing.company_symbol} {filing.filing_type}"
         )
         return None
 
     except Exception as e:
-        print(f"Error downloading filing document: {e}")
+        logger.error(f"Error downloading filing document: {e}")
         return None

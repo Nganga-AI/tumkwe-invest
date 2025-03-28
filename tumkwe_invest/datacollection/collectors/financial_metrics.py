@@ -11,6 +11,7 @@ import yfinance as yf
 
 from ..config import CACHE_DIRECTORY
 from ..models import FinancialStatement, KeyMetrics
+from loguru import logger
 
 # Create cache directory
 os.makedirs(os.path.join(CACHE_DIRECTORY, "financial_metrics"), exist_ok=True)
@@ -55,7 +56,7 @@ def get_key_metrics_yf(symbol: str) -> Optional[KeyMetrics]:
         return metrics
 
     except Exception as e:
-        print(f"Error fetching metrics for {symbol}: {e}")
+        logger.error(f"Error fetching metrics for {symbol}: {e}")
         return None
 
 
@@ -70,7 +71,7 @@ def get_alpha_vantage_metrics(symbol: str) -> Optional[KeyMetrics]:
         Dictionary with financial metrics
     """
     if not os.getenv("ALPHA_VANTAGE_API_KEY"):
-        print("Warning: ALPHA_VANTAGE_API_KEY not set. Cannot fetch metrics.")
+        logger.warning("Warning: ALPHA_VANTAGE_API_KEY not set. Cannot fetch metrics.")
         return {}
 
     try:
@@ -108,7 +109,7 @@ def get_alpha_vantage_metrics(symbol: str) -> Optional[KeyMetrics]:
         return data
 
     except Exception as e:
-        print(f"Error fetching Alpha Vantage metrics for {symbol}: {e}")
+        logger.error(f"Error fetching Alpha Vantage metrics for {symbol}: {e}")
         return {}
 
 
@@ -179,7 +180,7 @@ def get_quarterly_financial_data(symbol: str) -> Dict[str, List[FinancialStateme
             )
             result["income_statement"].append(statement)
     except Exception as e:
-        print(f"Error fetching quarterly income statement for {symbol}: {e}")
+        logger.error(f"Error fetching quarterly income statement for {symbol}: {e}")
 
     # Balance Sheet
     try:
@@ -199,7 +200,7 @@ def get_quarterly_financial_data(symbol: str) -> Dict[str, List[FinancialStateme
             )
             result["balance_sheet"].append(statement)
     except Exception as e:
-        print(f"Error fetching quarterly balance sheet for {symbol}: {e}")
+        logger.error(f"Error fetching quarterly balance sheet for {symbol}: {e}")
 
     # Cash Flow
     try:
@@ -219,6 +220,6 @@ def get_quarterly_financial_data(symbol: str) -> Dict[str, List[FinancialStateme
             )
             result["cash_flow"].append(statement)
     except Exception as e:
-        print(f"Error fetching quarterly cash flow for {symbol}: {e}")
+        logger.error(f"Error fetching quarterly cash flow for {symbol}: {e}")
 
     return result
