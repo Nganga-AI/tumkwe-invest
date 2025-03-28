@@ -3,7 +3,6 @@ Manager for coordinating data collection tasks and scheduling.
 """
 
 import json
-import logging
 import os
 import pickle
 import threading
@@ -18,7 +17,6 @@ from .collectors.financial_metrics import (
     get_quarterly_financial_data,
 )
 from .collectors.news_collector import get_company_news
-from .collectors.sec_edgar import download_filing_document, get_recent_filings
 from .collectors.yahoo_finance import (
     get_company_profile,
     get_financial_statements,
@@ -35,18 +33,7 @@ from .validation import (
     validate_news_articles,
     validate_stock_prices,
 )
-
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-    handlers=[
-        logging.FileHandler(os.path.join(CACHE_DIRECTORY, "data_collection.log")),
-        logging.StreamHandler(),
-    ],
-)
-logger = logging.getLogger("data_collector")
-
+from loguru import logger
 
 class CollectorManager:
     """Manager for data collection tasks."""
@@ -267,8 +254,6 @@ class CollectorManager:
             self._collect_financial_data(task)
         elif task.data_type == "news":
             self._collect_news(task)
-        elif task.data_type == "sec_filings":
-            self._collect_sec_filings(task)
 
     def _collect_market_data(self, task: DataCollectionTask):
         """Collect market data for the given task."""
@@ -535,56 +520,6 @@ class CollectorManager:
             except Exception as e:
                 logger.error(f"Error collecting news for {symbol}: {e}")
 
-    def _collect_sec_filings(self, task: DataCollectionTask):
-        """Collect SEC filings for the given task."""
-        for symbol in task.company_symbols:
-            try:
-                company_dir = self._get_company_dir(symbol)
-                filings_dir = os.path.join(company_dir, "sec_filings")
-                os.makedirs(filings_dir, exist_ok=True)
-
-                # Get recent filings
-                filings = get_recent_filings(symbol)
-
-                if filings:
-                    # Save filings metadata
-                    filings_file = os.path.join(company_dir, "sec_filings_metadata.csv")
-                    filings_df = pd.DataFrame(
-                        [
-                            {
-                                "filing_type": filing.filing_type,
-                                "filing_date": filing.filing_date.isoformat(),
-                                "accession_number": filing.accession_number,
-                                "url": filing.url,
-                            }
-                            for filing in filings
-                        ]
-                    )
-                    filings_df.to_csv(filings_file, index=False)
-
-                    # Download content for important filings
-                    important_filings = ["10-K", "10-Q"]
-                    for filing in filings:
-                        if filing.filing_type in important_filings:
-                            # Download filing document
-                            content = download_filing_document(filing)
-                            if content:
-                                # Save content to file
-                                filing_filename = f"{filing.filing_type}_{filing.filing_date.strftime('%Y%m%d')}.txt"
-                                with open(
-                                    os.path.join(filings_dir, filing_filename),
-                                    "w",
-                                    encoding="utf-8",
-                                ) as f:
-                                    f.write(content)
-
-                logger.info(
-                    f"SEC filings collection complete for {symbol}: {len(filings)} filings"
-                )
-
-            except Exception as e:
-                logger.error(f"Error collecting SEC filings for {symbol}: {e}")
-
     def _get_company_dir(self, symbol: str) -> str:
         """Get the directory for a company's data."""
         company_dir = os.path.join(self.output_dir, symbol)
@@ -638,7 +573,6 @@ class CollectorManager:
             data_type="sec_filings",
             company_symbols=[symbol],
         )
-        self._collect_sec_filings(sec_task)
 
         logger.info(f"Full data collection complete for {symbol}")
 
