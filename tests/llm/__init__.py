@@ -1,3 +1,0 @@
-"""
-LLM module tests.
-"""
