@@ -29,7 +29,7 @@ def get_yahoo_finance_news(
         ticker = yf.Ticker(company_symbol)
 
         # Get news data
-        news_data = ticker.news
+        news_data = ticker.get_news(count=max_articles)
 
         # Process each news article (up to max_articles)
         for article_data in news_data[:max_articles]:

@@ -32,7 +32,7 @@ def get_company_news(
     """
     if not os.getenv("NEWS_API_KEY"):
         logger.warning("Warning: NEWS_API_KEY not set. Cannot fetch news.")
-        return []
+        raise ValueError("NEWS_API_KEY not set. Cannot fetch news.")
 
     if not company_symbol and not company_name:
         raise ValueError("Must provide company_symbol or company_name")

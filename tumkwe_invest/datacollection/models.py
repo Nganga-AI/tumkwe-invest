@@ -8,30 +8,6 @@ from enum import Enum
 from typing import Any, Dict, List, Optional, Set
 
 
-@dataclass
-class FinancialData:
-    """Base class for financial data"""
-
-    symbol: str
-    source: str
-    last_updated: datetime = field(default_factory=datetime.now)
-    validation_warnings: List[str] = field(default_factory=list)
-    is_valid: bool = True
-
-
-@dataclass
-class StockPrice(FinancialData):
-    """Stock price information"""
-
-    open: float = field(default=0.0)
-    high: float = field(default=0.0)
-    low: float = field(default=0.0)
-    close: float = field(default=0.0)
-    volume: int = field(default=0.0)
-    adjusted_close: Optional[float] = None
-    date: datetime = field(default_factory=datetime.now)
-
-
 class StatementType(Enum):
     """Types of financial statements"""
 
@@ -47,32 +23,53 @@ class Period(Enum):
 
     ANNUAL = "annual"
     QUARTERLY = "quarterly"
-    TTM = "ttm"  # Trailing twelve months
+    TTM = "trailing"  # Trailing twelve months
 
 
 @dataclass
-class FinancialStatement(FinancialData):
+class DataSource:
+    symbol: str
+    source: str
+
+
+@dataclass
+class StockPrice(DataSource):
+    """Stock price information for a given symbol and date."""
+
+    close: Optional[float] = None  # Closing price, may be missing
+    high: Optional[float] = None  # Highest price in period
+    low: Optional[float] = None  # Lowest price in period
+    open: Optional[float] = None  # Opening price
+    stock_splits: float = 0.0  # Stock split ratio, default to no split
+    volume: Optional[float] = None  # Trading volume
+    date: Optional[datetime] = None  # Date of price data
+
+    def __post_init__(self):
+        # Ensure non-negative values where applicable
+        for field_name in ["close", "high", "low", "open", "volume"]:
+            value = getattr(self, field_name)
+            if value is not None and value < 0:
+                setattr(self, field_name, None)
+
+
+@dataclass
+class FinancialStatement(DataSource):
     """Financial statement data"""
 
-    statement_type: str = field(
-        default=""
-    )  # income_statement, balance_sheet, cash_flow
-    period: str = field(default="")  # annual, quarterly
-    date: datetime = field(default_factory=datetime.now)
+    statement_type: StatementType = field(default=StatementType.INCOME)
+    period: Period = field(default=Period.ANNUAL)
+    date: Optional[datetime] = None
     data: Dict[str, float] = field(default_factory=dict)
-    currency: str = "USD"
-    fiscal_year: Optional[int] = None
-    fiscal_quarter: Optional[int] = None
 
 
 @dataclass
-class CompanyProfile(FinancialData):
+class CompanyProfile(DataSource):
     """Company profile information"""
 
-    name: str = field(default="")
-    sector: str = field(default="")
-    industry: str = field(default="")
-    description: str = field(default="")
+    name: str
+    sector: str
+    industry: str
+    description: str
     website: Optional[str] = None
     employees: Optional[int] = None
     country: Optional[str] = None
@@ -85,10 +82,9 @@ class CompanyProfile(FinancialData):
 
 
 @dataclass
-class KeyMetrics(FinancialData):
+class KeyMetrics(DataSource):
     """Key financial metrics for a company"""
 
-    date: datetime = field(default_factory=datetime.now)
     pe_ratio: Optional[float] = None
     pb_ratio: Optional[float] = None
     dividend_yield: Optional[float] = None
@@ -100,6 +96,7 @@ class KeyMetrics(FinancialData):
     profit_margin: Optional[float] = None
     current_ratio: Optional[float] = None
     quick_ratio: Optional[float] = None
+    date: Optional[datetime] = None
 
     def __post_init__(self):
         float_fields = [
@@ -125,9 +122,7 @@ class KeyMetrics(FinancialData):
 
 
 @dataclass
-class NewsArticle:
-    """News article related to a company"""
-
+class News:
     company_symbol: str
     title: str
     publication: str
@@ -135,36 +130,31 @@ class NewsArticle:
     url: str
     summary: str
     content: Optional[str] = None
-    sentiment: Optional[float] = None
-    relevance_score: Optional[float] = None
+
+
+@dataclass
+class NewsArticle(News):
+    """News article related to a company"""
+
+    sentiment: Optional[float] = None  # Typically -1 to 1
+    relevance_score: Optional[float] = None  # Typically 0 to 1
     categories: List[str] = field(default_factory=list)
 
-
-@dataclass
-class SECFiling:
-    """SEC filing information"""
-
-    company_symbol: str
-    filing_type: str  # 10-K, 10-Q, 8-K, etc.
-    filing_date: datetime
-    period_end_date: Optional[datetime] = field(default_factory=lambda: None)
-    accession_number: Optional[str] = None
-    url: Optional[str] = None
-    document_text: Optional[str] = None
-    extracted_data: Dict[str, Any] = field(default_factory=dict)
+    def __post_init__(self):
+        if self.sentiment is not None:
+            self.sentiment = max(-1.0, min(1.0, self.sentiment))  # Clamp to [-1, 1]
+        if self.relevance_score is not None:
+            self.relevance_score = max(
+                0.0, min(1.0, self.relevance_score)
+            )  # Clamp to [0, 1]
 
 
 @dataclass
-class DataCollectionTask:
-    """Represents a data collection task for scheduling"""
-
-    task_name: str
-    data_type: str
-    company_symbols: List[str]
-    last_run: Optional[datetime] = field(default_factory=lambda: None)
-    next_run: Optional[datetime] = field(default_factory=lambda: None)
-    interval: timedelta = field(default_factory=lambda: timedelta(days=1))
-    priority: int = 1  # Higher number = higher priority
+class WarningResult:
+    last_updated: datetime = field(default_factory=datetime.now)
+    validation_warnings: List[str] = field(default_factory=list)
+    is_valid: bool = True
+    data: Dict[str, Any] = field(default_factory=dict)
 
 
 @dataclass
