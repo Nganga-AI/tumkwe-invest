@@ -56,8 +56,6 @@ class TestTickerTools(unittest.TestCase):
                 "ticker": "AAPL",
                 "period": "1mo",
                 "interval": "1d",
-                "start": None,
-                "end": None,
             }
         )
         self.assertEqual(result, {"history": "dummy"})
