@@ -1,7 +1,5 @@
-from langchain_core.tools import tool
 import yfinance as yf
-from datetime import datetime
-from loguru import logger
+from langchain_core.tools import tool
 
 
 @tool

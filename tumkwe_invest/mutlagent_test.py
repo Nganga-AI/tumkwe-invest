@@ -1,15 +1,15 @@
 # %%
 # %cd ..
 
+from IPython.display import Image, display
+
 # %%
 # %% Import necessary libraries
-from langchain_core.messages import AIMessage, BaseMessage, HumanMessage
-from langchain_core.tools import tool
+from langchain_core.messages import AIMessage, HumanMessage
 from langchain_ollama import ChatOllama
-from langgraph.graph import StateGraph, END, START, MessagesState
-from langgraph.prebuilt import ToolNode
 from langgraph.checkpoint.memory import MemorySaver
-from IPython.display import Image, display
+from langgraph.graph import END, START, MessagesState, StateGraph
+from langgraph.prebuilt import ToolNode
 
 # %% Setup LLM - Replace "llama3.3" with your desired model if needed
 # Ensure Ollama server is running if using ChatOllama
@@ -17,18 +17,12 @@ llm = ChatOllama(model="llama3.3", temperature=0.1)
 
 # %% Define Placeholder Tools
 # Normally, these would have real implementations and potentially Pydantic schemas for args
-from tumkwe_invest.news import (
-    tools as news_tools,
-    TOOL_DESCRIPTION as NEWS_TOOL_DESCRIPTION,
-)
-from tumkwe_invest.sector import (
-    tools as sector_tools,
-    TOOL_DESCRIPTION as SECTOR_TOOL_DESCRIPTION,
-)
-from tumkwe_invest.ticker import (
-    tools as ticker_tools,
-    TOOL_DESCRIPTION as TICKER_TOOL_DESCRIPTION,
-)
+from tumkwe_invest.news import TOOL_DESCRIPTION as NEWS_TOOL_DESCRIPTION
+from tumkwe_invest.news import tools as news_tools
+from tumkwe_invest.sector import TOOL_DESCRIPTION as SECTOR_TOOL_DESCRIPTION
+from tumkwe_invest.sector import tools as sector_tools
+from tumkwe_invest.ticker import TOOL_DESCRIPTION as TICKER_TOOL_DESCRIPTION
+from tumkwe_invest.ticker import tools as ticker_tools
 
 # from tumkwe_invest import tools as all_tools
 
@@ -234,7 +228,6 @@ try:
 except Exception as e:
     # This requires some extra dependencies (like graphviz) and is optional
     print(f"Graph visualization failed (requires graphviz): {e}")
-    pass
 
 # %%
 
