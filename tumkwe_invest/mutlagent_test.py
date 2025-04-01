@@ -1,21 +1,28 @@
-# %%
-# %cd ..
+from typing import Annotated
 
 from IPython.display import Image, display
 
-# %%
-# %% Import necessary libraries
+# Import necessary libraries
 from langchain_core.messages import AIMessage, HumanMessage
 from langchain_ollama import ChatOllama
 from langgraph.checkpoint.memory import MemorySaver
-from langgraph.graph import END, START, MessagesState, StateGraph
+from langgraph.graph import END, START, StateGraph
+from langgraph.graph.message import add_messages
 from langgraph.prebuilt import ToolNode
+from typing_extensions import TypedDict
 
-# %% Setup LLM - Replace "llama3.3" with your desired model if needed
+
+class MessagesState(TypedDict):
+    messages: Annotated[list, add_messages]
+    route: str = None
+
+
+# Setup LLM - Replace "llama3.3" with your desired model if needed
 # Ensure Ollama server is running if using ChatOllama
-llm = ChatOllama(model="llama3.3", temperature=0.1)
+temperature = 0.9
+llm = ChatOllama(model="llama3.3", temperature=temperature)
 
-# %% Define Placeholder Tools
+# Define Placeholder Tools
 # Normally, these would have real implementations and potentially Pydantic schemas for args
 from tumkwe_invest.news import TOOL_DESCRIPTION as NEWS_TOOL_DESCRIPTION
 from tumkwe_invest.news import tools as news_tools
@@ -26,24 +33,16 @@ from tumkwe_invest.ticker import tools as ticker_tools
 
 # from tumkwe_invest import tools as all_tools
 
-# %%
-# %% Create Specialized LLM Bindings
+
+# Create Specialized LLM Bindings
 # Each LLM instance is bound only to the tools relevant for its role
-llm_router = ChatOllama(
-    model="llama3.3", temperature=0.1
-)  # Router doesn't need tools bound for *this* simple routing logic
-llm_news = ChatOllama(model="llama3.3", temperature=0.1).bind_tools(tools=news_tools)
-llm_sector = ChatOllama(model="llama3.3", temperature=0.1).bind_tools(
-    tools=sector_tools
-)
-llm_ticker = ChatOllama(model="llama3.3", temperature=0.1).bind_tools(
-    tools=ticker_tools
-)
 
+llm_router = llm  # Router doesn't need tools bound for *this* simple routing logic
+llm_news = llm.bind_tools(tools=news_tools)
+llm_sector = llm.bind_tools(tools=sector_tools)
+llm_ticker = llm.bind_tools(tools=ticker_tools)
 
-# %%
-# %% Define Agent Nodes
-
+# Define Agent Nodes
 # 1. Router Agent: Decides which specialist agent to call
 ROUTER_PROMPT = """You are an expert request router. Your task is to analyze the user's latest query and determine which specialized agent is best suited to handle it.
 The available agents are:
@@ -59,7 +58,7 @@ User Query:
 """
 
 
-# %%
+# Define system prompts for each agent
 def route_request(state: MessagesState):
     messages = state["messages"]
     user_query = messages[-1].content
@@ -77,11 +76,9 @@ def route_request(state: MessagesState):
     print("--- Calling Router Agent ---")
     response = llm_router.invoke(router_messages)
     print(f"Router Decision: {response.content}")
-    # Store the decision temporarily or directly use it in the conditional edge
-    # Adding it to messages helps with tracing, but clean state is also good
-    # Let's add a system message indicating the route for clarity in logs
     return {
-        "messages": [AIMessage(content=response.content)]
+        "messages": [],
+        "route": response.content,
     }  # The content itself is the routing decision
 
 
@@ -116,22 +113,21 @@ def call_general_agent(state: MessagesState):
     return {"messages": [response]}
 
 
-# %%
-# %% Define Tool Nodes
+# Define Tool Nodes
 # Each ToolNode handles tools for its specific category
 news_tool_node = ToolNode(news_tools)
 sector_tool_node = ToolNode(sector_tools)
 ticker_tool_node = ToolNode(ticker_tools)
 
-# %% Define Conditional Edge Logic
+# Define Conditional Edge Logic
 
 
 # 1. Decide branch after router
 def decide_next_node(state: MessagesState):
-    last_message = state["messages"][-1]
+    route: str = state["route"]
     # Check the content of the last message (which is the router's decision)
-    if isinstance(last_message, AIMessage):
-        content = last_message.content.strip().lower()
+    if route is not None:
+        content = route.strip().lower()
         if "news" in content:
             return "news_agent"
         elif "sector" in content:
@@ -160,8 +156,7 @@ def route_tools(state: MessagesState) -> str:
     return END
 
 
-# %%
-# %% Build the Graph
+# Build the Graph
 workflow = StateGraph(MessagesState)
 
 # Add Nodes
@@ -220,8 +215,8 @@ workflow.add_edge("general_agent", END)
 memory = MemorySaver()
 graph = workflow.compile(checkpointer=memory)
 
-# %%
-# %% Visualize the Graph (Optional)
+#
+# Visualize the Graph (Optional)
 try:
     img_data = graph.get_graph().draw_png()
     display(Image(img_data))
@@ -229,9 +224,7 @@ except Exception as e:
     # This requires some extra dependencies (like graphviz) and is optional
     print(f"Graph visualization failed (requires graphviz): {e}")
 
-# %%
-
-# %% Interaction Loop
+# Interaction Loop
 config = {
     "configurable": {"thread_id": "user-thread-1"}
 }  # Use a unique ID for conversation history
