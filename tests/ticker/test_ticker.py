@@ -39,7 +39,6 @@ class FakeTicker:
         return {"recommendations": "dummy"}
 
 
-
 class TestTickerTools(unittest.TestCase):
     @patch("yfinance.Ticker", side_effect=lambda ticker: FakeTicker(ticker))
     def test_get_stock_info(self, mock_ticker):
@@ -76,7 +75,6 @@ class TestTickerTools(unittest.TestCase):
     def test_get_stock_recommendations(self, mock_ticker):
         result = get_stock_recommendations.invoke({"ticker": "AAPL"})
         self.assertEqual(result, {"recommendations": "dummy"})
-
 
 
 if __name__ == "__main__":

@@ -14,7 +14,7 @@ def fetch_company_news(
     Fetch news articles about a specific company.
 
     Args:
-        ticker: Stock ticker symbol or company name for search
+        ticker: Stock ticker symbol or company name for search. Works perfectly with ticker symbol
         max_articles: Maximum number of articles to retrieve
 
     Returns:
