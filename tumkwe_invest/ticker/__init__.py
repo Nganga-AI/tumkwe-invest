@@ -103,21 +103,6 @@ def get_stock_recommendations(ticker: str) -> dict:
     return yf.Ticker(ticker).get_recommendations(as_dict=True)
 
 
-@tool
-def get_stock_earnings(ticker: str, freq: str = "yearly") -> dict:
-    """
-    Get earnings data for a company.
-
-    Args:
-        ticker: Stock ticker symbol
-        freq: Data frequency - "yearly" or "quarterly"
-
-    Returns:
-        Earnings data as dictionary
-    """
-    return yf.Ticker(ticker).get_earnings(as_dict=True, freq=freq)
-
-
 tools = [
     get_stock_info,
     get_stock_price_history,
@@ -125,7 +110,6 @@ tools = [
     get_stock_income_statement,
     get_stock_cash_flow,
     get_stock_recommendations,
-    get_stock_earnings,
 ]
 
 TOOL_DESCRIPTION = """

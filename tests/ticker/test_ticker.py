@@ -5,7 +5,6 @@ from unittest.mock import patch
 from tumkwe_invest.ticker import (
     get_stock_balance_sheet,
     get_stock_cash_flow,
-    get_stock_earnings,
     get_stock_income_statement,
     get_stock_info,
     get_stock_price_history,
@@ -39,8 +38,6 @@ class FakeTicker:
     def get_recommendations(self, as_dict):
         return {"recommendations": "dummy"}
 
-    def get_earnings(self, as_dict, freq):
-        return {"earnings": "dummy"}
 
 
 class TestTickerTools(unittest.TestCase):
@@ -80,10 +77,6 @@ class TestTickerTools(unittest.TestCase):
         result = get_stock_recommendations.invoke({"ticker": "AAPL"})
         self.assertEqual(result, {"recommendations": "dummy"})
 
-    @patch("yfinance.Ticker", side_effect=lambda ticker: FakeTicker(ticker))
-    def test_get_stock_earnings(self, mock_ticker):
-        result = get_stock_earnings.invoke({"ticker": "AAPL", "freq": "yearly"})
-        self.assertEqual(result, {"earnings": "dummy"})
 
 
 if __name__ == "__main__":
