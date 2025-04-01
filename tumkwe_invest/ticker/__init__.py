@@ -129,3 +129,8 @@ tools = [
     get_stock_recommendations,
     get_stock_earnings,
 ]
+
+TOOL_DESCRIPTION = """
+Handles queries about current stocks, financial data, and market insights.
+It provides functions to retrieve company info, historical prices, financial statements, and analysis data using yfinance.
+"""

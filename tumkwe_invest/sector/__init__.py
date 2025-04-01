@@ -360,3 +360,7 @@ tools = [
     get_sector_top_mutual_funds,
     list_available_sectors
 ]
+TOOL_DESCRIPTION = """
+Handles queries about financial market sectors.
+It provides insights on sector overviews, industries, research reports, and top companies, ETFs, and mutual funds.
+"""

@@ -1,7 +1,8 @@
 from langchain_core.tools import tool
 import yfinance as yf
 from datetime import datetime
-from  loguru import logger
+from loguru import logger
+
 
 @tool
 def fetch_company_news(
@@ -37,14 +38,23 @@ def fetch_company_news(
         {
             "title": article["title"],
             "source": article.get("publisher"),
-            "providerPublishTime": datetime.fromtimestamp(
-                article.get("providerPublishTime")
-            ).strftime("%Y-%m-%d %H:%M:%S") if article.get("providerPublishTime") else None,
+            "providerPublishTime": (
+                datetime.fromtimestamp(article.get("providerPublishTime")).strftime(
+                    "%Y-%m-%d %H:%M:%S"
+                )
+                if article.get("providerPublishTime")
+                else None
+            ),
         }
         for article in results
     ]
     return results
 
+
 tools = [
     fetch_company_news,
 ]
+TOOL_DESCRIPTION = """
+Handles queries about current events, news articles, and searching news archives.
+It fetches the latest company news and articles using yfinance.
+"""
