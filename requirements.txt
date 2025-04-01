@@ -33,3 +33,5 @@ langchain-openai
 langchain-ollama
 
 lxml[html_clean]
+
+loguru
