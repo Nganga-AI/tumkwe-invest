@@ -44,3 +44,7 @@ def fetch_company_news(
         for article in results
     ]
     return results
+
+tools = [
+    fetch_company_news,
+]
