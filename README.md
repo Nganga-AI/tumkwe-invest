@@ -1,269 +1,156 @@
 # Tumkwe Invest
 
-An intelligent investment analysis platform that combines technical, fundamental, and sentiment analysis to provide comprehensive stock market insights.
+An intelligent investment analysis platform that uses agent-based workflows to provide comprehensive stock market insights.
 
 ## Overview
 
-Tumkwe Invest is a Python package designed to help investors make data-driven decisions by collecting, analyzing, and interpreting financial data from various sources. The platform integrates multiple analysis techniques to provide holistic investment recommendations.
+Tumkwe Invest is a Python package designed to help investors make data-driven decisions by collecting and analyzing financial data from various sources. The platform uses specialized agents and intelligent routing to provide investment insights and recommendations.
 
 ## Features
 
-- **Data Collection**: Automated collection from multiple financial sources
+- **Data Sources**:
 
-  - Yahoo Finance data
-  - SEC EDGAR filings
-  - Financial metrics
-  - News articles and sentiment data
-  - LangChain-powered news analysis
-- **Analysis Capabilities**:
+  - Yahoo Finance integration for stock data
+  - Company news and articles
+  - Sector and industry information
+- **Agent-Based Architecture**:
 
-  - Technical analysis (price patterns, indicators, volume analysis)
-  - Fundamental analysis (financial statements, ratios, valuations)
-  - Sentiment analysis (news, social media, market sentiment)
-  - Integrated scoring system combining multiple analysis methods
-  - AI-powered news sentiment analysis using LangChain and OpenAI
+  - Intelligent routing between specialized agents
+  - Single-step agent workflows for direct queries
+  - Multi-step agent workflows for complex analyses
+  - Automated planning and execution of investment research tasks
+  - LangGraph orchestration for reliable agent coordination
+- **Specialized Agents**:
+
+  - News agent for retrieving and analyzing news articles
+  - Sector agent for industry and sector analysis
+  - Ticker agent for stock-specific information
+  - General agent for handling conversation and other queries
 - **LLM Integration**:
 
-  - Support for multiple LLM providers (OpenAI, Anthropic, Groq, Ollama)
-  - Unified interface for provider switching
-  - LangChain integration for advanced prompt engineering
-
-## Project Structure
-
-```
-tumkwe_invest/
-├── data_analysis/          # Analysis modules
-│   ├── fundamental_analysis.py
-│   ├── integrated_analysis.py
-│   ├── sentiment_analysis.py
-│   ├── technical_analysis.py
-│   └── validation.py
-├── datacollection/         # Data collection modules
-│   ├── collector_manager.py
-│   ├── collectors/         # Specific collectors
-│   │   ├── financial_metrics.py
-│   │   ├── langchain_news.py
-│   │   ├── news_collector.py
-│   │   ├── sec_edgar.py
-│   │   ├── yahoo_finance.py
-│   │   └── yahoo_news.py
-│   ├── config.py
-│   ├── models.py
-│   └── validation.py
-├── llm_management/         # LLM provider management
-│   ├── __init__.py
-│   └── llm_provider.py
-├── tests/                  # Test cases
-│   ├── datacollection/
-│   ├── llm_management/
-│   └── conftest.py
-```
+  - Support for local LLMs through Ollama
+  - LangChain integration for tool use and structured outputs
 
 ## Installation
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/tumkwe-invest.git
+git clone https://github.com/your-username/tumkwe-invest.git
 cd tumkwe-invest
 
-# Install the package
+# Install dependencies
 pip install -e .
 ```
 
-## Usage
+## Getting Started
 
-### Basic Analysis
-
-```python
-import tumkwe_invest as ti
-
-# Data Collection
-collector = ti.datacollection.collector_manager.CollectorManager()
-data = collector.collect_data("AAPL")
-
-# Technical Analysis
-tech_analysis = ti.data_analysis.technical_analysis.TechnicalAnalyzer()
-tech_scores = tech_analysis.analyze(data)
-
-# Fundamental Analysis
-fund_analysis = ti.data_analysis.fundamental_analysis.FundamentalAnalyzer()
-fund_scores = fund_analysis.analyze(data)
-
-# Sentiment Analysis
-sent_analysis = ti.data_analysis.sentiment_analysis.SentimentAnalyzer()
-sent_scores = sent_analysis.analyze(data)
-
-# Integrated Analysis
-integrated = ti.data_analysis.integrated_analysis.IntegratedAnalyzer()
-final_score = integrated.get_composite_score(tech_scores, fund_scores, sent_scores)
-recommendation = integrated.get_recommendation(final_score)
-
-print(f"Investment recommendation for AAPL: {recommendation}")
-```
-
-### LangChain News Analysis with Multiple LLM Providers
-
-```python
-from tumkwe_invest.datacollection.collectors import LangChainNewsAnalyzer
-from tumkwe_invest.llm_management import LLMProvider
-
-# Initialize with OpenAI
-news_analyzer = LangChainNewsAnalyzer(
-    provider=LLMProvider.OPENAI,
-    api_key="your-openai-api-key",
-    model="gpt-4"
-)
-
-# Get news analysis
-analysis = news_analyzer.analyze_stock_news("What happened today with Microsoft stocks?")
-print(analysis)
-
-# Switch to Claude (Anthropic)
-news_analyzer.change_llm_provider(
-    provider=LLMProvider.ANTHROPIC,
-    api_key="your-anthropic-api-key",
-    model="claude-3-opus-20240229"
-)
-
-# Get analysis from Claude
-claude_analysis = news_analyzer.analyze_stock_news("Compare NVIDIA and AMD stock performance")
-print(claude_analysis)
-
-# Use local Ollama model
-news_analyzer.change_llm_provider(
-    provider=LLMProvider.OLLAMA,
-    model="llama3"  # Make sure this model is available in your Ollama instance
-)
-
-ollama_analysis = news_analyzer.analyze_stock_news("What are the recent trends for Tesla stock?")
-print(ollama_analysis)
-```
-
-### Direct LLM Provider Usage
-
-```python
-from tumkwe_invest.llm_management import get_llm_provider, LLMProvider
-
-# Get a specific LLM provider
-llm = get_llm_provider(
-    provider=LLMProvider.GROQ,
-    api_key="your-groq-api-key",
-    model="llama3-8b-8192"
-)
-
-# Use the LLM directly with LangChain
-from langchain.chains import LLMChain
-from langchain.prompts import PromptTemplate
-
-prompt = PromptTemplate.from_template("Analyze the following financial news: {news}")
-chain = LLMChain(llm=llm, prompt=prompt)
-result = chain.invoke({"news": "NVIDIA stock reached new heights after AI announcements"})
-print(result["text"])
-```
-
-## User Interface Module
-
-The UI module provides components for creating intuitive, accessible interfaces for users with varying levels of financial expertise.
-
-### Key Components
-
-- **Visualization**: Chart and graph components using Chart.js/D3.js
-- **Dashboard**: Layouts for displaying combined technical, fundamental, and sentiment insights
-- **Components**: Reusable UI elements (cards, buttons, tooltips) 
-- **Utilities**: Helper functions for formatting and accessibility
-
-### Example Usage
-
-```python
-from tumkwe_invest.datacollection.collectors.yahoo_finance import YahooFinanceCollector
-from tumkwe_invest.data_analysis.technical_analysis import calculate_indicators
-from tumkwe_invest.ui.dashboard import StockDashboard
-
-# Collect data
-collector = YahooFinanceCollector()
-stock_data = collector.get_historical_data("AAPL", period="1mo")
-
-# Analyze data
-indicators = calculate_indicators(stock_data)
-
-# Create dashboard
-dashboard = StockDashboard("AAPL", "Apple Inc.")
-dashboard.set_price_data(
-    stock_data["dates"], 
-    stock_data["close_prices"],
-    stock_data["volumes"]
-)
-dashboard.set_technical_indicators(indicators)
-
-# Build dashboard
-config = dashboard.build_dashboard()
-```
-
-For more details and examples, see the [UI module documentation](/tumkwe_invest/ui/README.md).
-
-## Testing
-
-The project includes a comprehensive test suite using unittest. You can run the tests in several ways:
+Make sure to have Ollama running with the Llama 3 model available:
 
 ```bash
-# Run all tests
-python -m unittest discover -s tests
-
-# Run all tests with custom runner (better handling of integration tests)
-python -m tests.conftest
-
-# Run tests for a specific module
-python -m unittest tests.llm_management.test_llm_provider
-
-# Run integration tests too (by default they're skipped)
-RUN_INTEGRATION_TESTS=1 python -m unittest discover -s tests
-
-# Run tests with verbose output
-python -m unittest discover -s tests -v
+# Start Ollama with Llama 3 model
+ollama run llama3.3
 ```
 
-### Setting up for integration tests
+## Usage Examples
 
-To run integration tests that interact with actual LLM APIs, you need to set up the following environment variables:
+### Single-Step Agent Workflow
 
-```bash
-# For OpenAI tests
-export OPENAI_API_KEY=your-openai-api-key
+For handling straightforward queries that can be addressed by a single specialized agent:
 
-# For Anthropic tests
-export ANTHROPIC_API_KEY=your-anthropic-api-key
+```python
+from tumkwe_invest.single_step_agents import graph, stream_graph_updates
 
-# For Groq tests
-export GROQ_API_KEY=your-groq-api-key
+# Simple query that will be routed to the appropriate agent
+query = "What are the latest news about Tesla?"
+config = {"configurable": {"thread_id": "example-thread-1"}}
 
-# For Ollama tests, ensure the Ollama server is running locally
-# with the required models available
+# Process the query and get response
+stream_graph_updates(query, config)
 ```
 
-## Requirements
+### Multi-Step Agent Workflow
 
-- Python 3.8+
-- pandas
-- numpy
-- yfinance
-- requests
-- nltk
-- beautifulsoup4
-- scikit-learn
-- langchain
-- langchain_core
-- langchain_community
-- langchain_openai
-- langchain_anthropic
-- langchain_groq
-- langchain_ollama
-- openai
-- anthropic
+For complex queries requiring multiple steps and different agent capabilities:
 
-## License
+```python
+from tumkwe_invest.multi_step_agents import graph, stream_graph_updates
 
-[MIT License](LICENSE)
+# Complex query requiring multiple steps
+query = "Analyze Apple's recent performance, including stock price trends, latest news, and how it compares to the tech sector as a whole."
+config = {"configurable": {"thread_id": "example-thread-2"}}
 
-## Contributing
+# Process the complex query
+stream_graph_updates(query, config)
+```
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+### Using Specific Agents Directly
+
+If you want to interact with a specific agent directly:
+
+```python
+from langchain_core.messages import HumanMessage
+from tumkwe_invest.single_step_agents import llm_ticker, llm_news, llm_sector
+
+# Ticker agent for stock information
+ticker_response = llm_ticker.invoke([
+    HumanMessage(content="What's the current price of AAPL?")
+])
+print(ticker_response.content)
+
+# News agent for company news
+news_response = llm_news.invoke([
+    HumanMessage(content="Find recent news about Microsoft's AI investments")
+])
+print(news_response.content)
+
+# Sector agent for industry analysis
+sector_response = llm_sector.invoke([
+    HumanMessage(content="How is the semiconductor industry performing this quarter?")
+])
+print(sector_response.content)
+```
+
+### Interactive Chat Interface
+
+For an interactive command-line interface:
+
+```python
+from tumkwe_invest.single_step_agents import stream_graph_updates
+
+# Configuration
+config = {"configurable": {"thread_id": "my-investment-chat"}}
+
+print("Welcome to Tumkwe Invest! Type 'exit' to quit.")
+while True:
+    user_input = input("You: ")
+    if user_input.lower() in ["exit", "quit", "q"]:
+        break
+    stream_graph_updates(user_input, config)
+```
+
+## Project Structure
+
+```
+tumkwe_invest/
+├── __init__.py
+├── single_step_agents.py     # Single-request, single-agent workflow
+├── multi_step_agents.py      # Complex query planning and execution
+├── news                      # News retrieval and analysis tools
+├── sector                    # Industry and sector analysis tools
+├── ticker                    # Stock ticker specific tools
+```
+
+## Configuration
+
+```python
+from langchain_ollama import ChatOllama
+from tumkwe_invest.single_step_agents import news_tools, sector_tools, ticker_tools
+
+# Configure with different model and temperature
+custom_llm = ChatOllama(model="llama3:70b", temperature=0.7)
+
+# Create tool-bound instances for your application
+custom_news_agent = custom_llm.bind_tools(tools=news_tools)
+custom_sector_agent = custom_llm.bind_tools(tools=sector_tools)
+custom_ticker_agent = custom_llm.bind_tools(tools=ticker_tools)
+```
