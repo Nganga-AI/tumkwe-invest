@@ -10,3 +10,7 @@ typing-extensions
 langchain-core
 langgraph
 loguru
+
+# Testing libraries
+langchain-ollama
+ipython
