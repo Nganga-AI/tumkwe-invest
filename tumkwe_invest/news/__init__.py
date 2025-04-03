@@ -11,14 +11,18 @@ def fetch_company_news(
     max_articles: int = 10,
 ) -> list:
     """
-    Fetch news articles about a specific company.
+    Fetch recent news articles about a specific company or stock.
 
     Args:
-        ticker: Stock ticker symbol or company name for search. Works perfectly with ticker symbol
-        max_articles: Maximum number of articles to retrieve
+        ticker: Stock ticker symbol (e.g., AAPL, MSFT) or company name. \
+            Works most reliably with standard ticker symbols.
+        max_articles: Maximum number of news articles to retrieve. \
+            Default is 10. Higher values may result in more comprehensive but slower results.
 
     Returns:
-        List news
+        List of news articles, where each article is a dictionary containing title, \
+        summary, publication date, and source information. If no direct results are found, \
+        falls back to search with simplified article information.
     """
     results: list = yf.Ticker(ticker).get_news(count=max_articles)
     if results:
