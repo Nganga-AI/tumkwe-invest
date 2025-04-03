@@ -172,3 +172,4 @@ cython_debug/
 
 tumkwe_invest/data_cache
 data
+.vscode
