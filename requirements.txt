@@ -1,37 +1,16 @@
 # Data collection
 yfinance
-pandas
-requests
-python-dotenv
-beautifulsoup4
-newspaper3k
-numpy
-
-# API access
-alpha-vantage
-finnhub-python
-
-# Data processing
-nltk
-scipy
 
 # Utilities
 tqdm
 
-# Data Analysis
-transformers
-torch
-matplotlib
-
 # Chat Agent
 langchain
-langchain-community
+typing-extensions
 langchain-core
-langchain-anthropic
-langchain-groq
-langchain-openai
-langchain-ollama
-
-lxml[html_clean]
-
+langgraph
 loguru
+
+# Testing libraries
+langchain-ollama
+ipython

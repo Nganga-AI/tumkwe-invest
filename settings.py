@@ -1,0 +1,6 @@
+PACKAGE_NAME = "tumkwe-invest"
+VERSION = "0.0.1"
+DESCRIPTION = "An intelligent investment analysis platform that combines technical, fundamental, and sentiment analysis to provide comprehensive stock market insights."
+AUTHOR = "Alex Kameni"
+AUTHOR_EMAIL = "kamenialexnea@gmail.com"
+URL = "https://github.com/Nganga-AI/tumkwe-invest"
