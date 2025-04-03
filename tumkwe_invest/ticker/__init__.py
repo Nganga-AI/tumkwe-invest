@@ -2,7 +2,7 @@ import yfinance as yf
 from langchain_core.tools import tool
 
 
-@tool
+@tool(parse_docstring=True)
 def get_stock_info(ticker: str) -> dict:
     """
     Get detailed information about a stock.
@@ -16,7 +16,7 @@ def get_stock_info(ticker: str) -> dict:
     return yf.Ticker(ticker).get_info()
 
 
-@tool
+@tool(parse_docstring=True)
 def get_stock_price_history(
     ticker: str,
     period: str = "1mo",
@@ -44,7 +44,7 @@ def get_stock_price_history(
     )
 
 
-@tool
+@tool(parse_docstring=True)
 def get_stock_balance_sheet(ticker: str, freq: str = "yearly") -> dict:
     """
     Get the balance sheet data for a company.
@@ -59,7 +59,7 @@ def get_stock_balance_sheet(ticker: str, freq: str = "yearly") -> dict:
     return yf.Ticker(ticker).get_balance_sheet(as_dict=True, pretty=True, freq=freq)
 
 
-@tool
+@tool(parse_docstring=True)
 def get_stock_income_statement(ticker: str, freq: str = "yearly") -> dict:
     """
     Get the income statement data for a company.
@@ -74,7 +74,7 @@ def get_stock_income_statement(ticker: str, freq: str = "yearly") -> dict:
     return yf.Ticker(ticker).get_income_stmt(as_dict=True, pretty=True, freq=freq)
 
 
-@tool
+@tool(parse_docstring=True)
 def get_stock_cash_flow(ticker: str, freq: str = "yearly") -> dict:
     """
     Get the cash flow data for a company.
@@ -89,7 +89,7 @@ def get_stock_cash_flow(ticker: str, freq: str = "yearly") -> dict:
     return yf.Ticker(ticker).get_cash_flow(as_dict=True, pretty=True, freq=freq)
 
 
-@tool
+@tool(parse_docstring=True)
 def get_stock_recommendations(ticker: str) -> dict:
     """
     Get analyst recommendations for a stock.

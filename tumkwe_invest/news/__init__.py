@@ -5,7 +5,7 @@ from langchain_core.tools import tool
 from loguru import logger
 
 
-@tool
+@tool(parse_docstring=True)
 def fetch_company_news(
     ticker: str,
     max_articles: int = 10,

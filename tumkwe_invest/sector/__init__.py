@@ -174,7 +174,7 @@ SECTORS_AND_INDUSTRIES = {
 }
 
 
-@tool
+@tool(parse_docstring=True)
 def get_sector_industries(sector_key: str):
     """
     Gets the industries within a financial market sector.
@@ -242,7 +242,7 @@ def get_sector_industries(sector_key: str):
         return {"error": str(e)}
 
 
-@tool
+@tool(parse_docstring=True)
 def get_sector_key(sector_key: str):
     """
     Retrieves the key of the specified sector.
@@ -264,7 +264,7 @@ def get_sector_key(sector_key: str):
         return {"error": str(e)}
 
 
-@tool
+@tool(parse_docstring=True)
 def get_sector_name(sector_key: str):
     """
     Retrieves the name of the specified sector.
@@ -286,7 +286,7 @@ def get_sector_name(sector_key: str):
         return {"error": str(e)}
 
 
-@tool
+@tool(parse_docstring=True)
 def get_sector_overview(sector_key: str):
     """
     Retrieves the overview information of the specified sector.
@@ -308,7 +308,7 @@ def get_sector_overview(sector_key: str):
         return {"error": str(e)}
 
 
-@tool
+@tool(parse_docstring=True)
 def get_sector_research_reports(sector_key: str):
     """
     Retrieves research reports related to the specified sector.
@@ -330,7 +330,7 @@ def get_sector_research_reports(sector_key: str):
         return {"error": str(e)}
 
 
-@tool
+@tool(parse_docstring=True)
 def get_sector_symbol(sector_key: str):
     """
     Retrieves the symbol of the specified sector.
@@ -352,7 +352,7 @@ def get_sector_symbol(sector_key: str):
         return {"error": str(e)}
 
 
-@tool
+@tool(parse_docstring=True)
 def get_sector_ticker(sector_key: str):
     """
     Retrieves a Ticker object based on the sector's symbol.
@@ -376,7 +376,7 @@ def get_sector_ticker(sector_key: str):
         return {"error": str(e)}
 
 
-@tool
+@tool(parse_docstring=True)
 def get_sector_top_companies(sector_key: str):
     """
     Retrieves the top companies within the specified sector.
@@ -398,7 +398,7 @@ def get_sector_top_companies(sector_key: str):
         return {"error": str(e)}
 
 
-@tool
+@tool(parse_docstring=True)
 def get_sector_top_etfs(sector_key: str):
     """
     Gets the top ETFs for the specified sector.
@@ -420,7 +420,7 @@ def get_sector_top_etfs(sector_key: str):
         return {"error": str(e)}
 
 
-@tool
+@tool(parse_docstring=True)
 def get_sector_top_mutual_funds(sector_key: str):
     """
     Gets the top mutual funds for the specified sector.
@@ -442,7 +442,7 @@ def get_sector_top_mutual_funds(sector_key: str):
         return {"error": str(e)}
 
 
-@tool
+@tool(parse_docstring=True)
 def list_available_sectors():
     """
     Returns a list of all available sectors that can be used with the sector tools.
