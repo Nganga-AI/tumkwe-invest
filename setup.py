@@ -15,7 +15,7 @@ def read_long_description():
         return f.read()
 
 setup(
-    name=metadata.get("PACKAGE_NAME", "graphrag_tagger"),
+    name=metadata.get("PACKAGE_NAME", "tumkwe-invest"),
     version=metadata.get("VERSION", "0.0.1"),  # updated version
     description=metadata.get("DESCRIPTION", ""),
     long_description=read_long_description(),
